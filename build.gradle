@@ -1,0 +1,136 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    ext.kotlin_version = "1.4.32"
+    repositories {
+        google()
+        jcenter()
+        maven {
+            url "../streamamg-sdk-core"
+        }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.1.3'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:1.4.20"
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+plugins {
+    id("maven-publish")
+}
+
+// Versions of the library modules are matched (eg 1.0 core goes with 1.0 cloudmatrix) to prevent dependency issues
+ext.SDK_VERSION_CODE = 1
+ext.SDK_VERSION_NAME = "0.1"
+
+// Load local.properties
+//def propertiesFile = project.file("local.properties")
+//def localProperties = new Properties()
+//if (propertiesFile.exists()) {
+//    localProperties.load(new FileInputStream(propertiesFile))
+//}
+
+publishing {
+    publications {
+        core(MavenPublication) {
+            groupId = 'com.streamamg'
+            artifactId = 'streamamg-sdk-core'
+            version = '0.1'
+            artifact("$rootDir/streamamg-sdk-core/build/outputs/aar/streamamg-sdk-core-release-${SDK_VERSION_NAME}.aar")
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+                def dependencyNode = dependenciesNode.appendNode('dependency')
+                dependencyNode.appendNode('groupId', 'androidx.security')
+                dependencyNode.appendNode('artifactId', 'security-crypto')
+                dependencyNode.appendNode('version', '1.1.0-alpha03')
+            }
+        }
+        cloudmatrix(MavenPublication) {
+            groupId = 'com.streamamg'
+            artifactId = 'streamamg-sdk-cloudmatrix'
+            version = SDK_VERSION_NAME
+            artifact("$rootDir/streamamg-sdk-cloudmatrix/build/outputs/aar/streamamg-sdk-cloudmatrix-release-${SDK_VERSION_NAME}.aar")
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+                def dependencyNode = dependenciesNode.appendNode('dependency')
+                dependencyNode.appendNode('groupId', 'com.streamamg')
+                dependencyNode.appendNode('artifactId', 'core')
+                dependencyNode.appendNode('version', '0.1')
+            }
+        }
+        streamplay(MavenPublication) {
+            groupId = 'com.streamamg'
+            artifactId = 'streamamg-sdk-streamplay'
+            version = SDK_VERSION_NAME
+            artifact("$rootDir/streamamg-sdk-streamplay/build/outputs/aar/streamamg-sdk-streamplay-release-${SDK_VERSION_NAME}.aar")
+        }
+        authentication(MavenPublication) {
+            groupId = 'com.streamamg'
+            artifactId = 'streamamg-sdk-authentication'
+            version = SDK_VERSION_NAME
+            artifact("$rootDir/streamamg-sdk-authentication/build/outputs/aar/streamamg-sdk-authentication-release-${SDK_VERSION_NAME}.aar")
+        }
+        authentication(MavenPublication) {
+            groupId = 'com.streamamg'
+            artifactId = 'streamamg-sdk-playkit'
+            version = SDK_VERSION_NAME
+            artifact("$rootDir/streamamg-sdk-playkit/build/outputs/aar/streamamg-sdk-playkit-release-${SDK_VERSION_NAME}.aar")
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+                def dependencyNode = dependenciesNode.appendNode('dependency')
+                dependencyNode.appendNode('groupId', 'com.kaltura.player')
+                dependencyNode.appendNode('artifactId', 'tvplayer')
+                dependencyNode.appendNode('version', '4.12.0')
+                def dependencyNode2 = dependenciesNode.appendNode('dependency')
+                dependencyNode2.appendNode('groupId', 'com.kaltura.playkit')
+                dependencyNode2.appendNode('artifactId', 'imaplugin')
+                dependencyNode2.appendNode('version', '4.12.0')
+                def dependencyNode3 = dependenciesNode.appendNode('dependency')
+                dependencyNode3.appendNode('groupId', 'androidx.appcompat')
+                dependencyNode3.appendNode('artifactId', 'appcompat')
+                dependencyNode3.appendNode('version', '1.3.0')
+                def dependencyNode4 = dependenciesNode.appendNode('dependency')
+                dependencyNode4.appendNode('groupId', 'com.google.android.material')
+                dependencyNode4.appendNode('artifactId', 'material')
+                dependencyNode4.appendNode('version', '1.3.0')
+            }
+        }
+    }
+}
+
+ext {
+    androidx_crypto_version = '1.1.0-alpha03'
+    appcompat_version = '1.3.0'
+    constraintlayout_version = '2.0.4'
+    core_ktx_version = '1.5.0'
+    gson_version = '2.8.6'
+    lifecycle_extensions_version = '2.2.0'
+    okhttp_version = '4.9.0'
+    junit_version = '4.13.2'
+    kotlinx_coroutines_version = '1.3.9'
+    mockito_kotlin_version = '2.2.0'
+    material_version = '1.3.0'
+    rxandroid_version = '3.0.0'
+    rxjava_version = '3.0.11-RC5'
+    rxkotlin_version = '3.0.1'
+    retrofit_rxjava_version = '2.9.0'
+    retrofit_version = '2.9.0'
+    timber_version = '4.7.1'
+    wagon_git_version = '0.2.5'
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+        maven {
+            url "../streamamg-sdk-core"
+        }
+    }
+}
+
+
+apply from: rootProject.file("gradle/dokka.gradle")

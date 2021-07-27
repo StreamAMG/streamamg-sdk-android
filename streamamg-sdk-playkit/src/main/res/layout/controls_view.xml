@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/play_pause_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_play_button"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/exo_white" />
+
+
+        <ImageView
+            android:id="@+id/skip_backwards_button"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="@dimen/skip_button_gap"
+            android:src="@drawable/ic_skip_backwards"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/play_pause_button"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/exo_white" />
+
+
+        <ImageView
+            android:id="@+id/skip_forwards_button"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="@dimen/skip_button_gap"
+            android:src="@drawable/ic_skip_forward"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/play_pause_button"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/exo_white" />
+
+        <ImageView
+            android:id="@+id/fullscreen_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="@dimen/fullscreen_button_padding"
+            android:src="@drawable/ic_fullscreen_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/exo_white" />
+
+
+        <LinearLayout
+            android:id="@+id/scrub_bar_view"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:id="@+id/start_time"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:text="@string/empty_time"
+                android:textColor="@color/exo_white"
+                android:textSize="12sp" />
+
+            <SeekBar
+                android:id="@+id/scrub_bar"
+                android:layout_width="0px"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/exo_white"
+                android:progressTint="@color/track_colour"
+                android:thumb="@drawable/ic_thumb"
+                app:labelBehavior="gone"
+
+                />
+
+            <TextView
+                android:id="@+id/end_time"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:text="@string/empty_time"
+                android:textColor="@color/exo_white"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/spoiler_free_view"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <View
+                android:id="@+id/spoiler_free_left_view"
+                android:layout_width="0px"
+                android:layout_height="4dp"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:background="@color/track_colour" />
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="10dp"
+                android:layout_margin="10dp"
+                android:src="@drawable/ic_spoilerfree"
+                app:tint="@color/exo_white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="@string/spoiler_free"
+                android:textColor="@color/exo_white"
+                android:textSize="12sp" />
+
+            <View
+                android:id="@+id/spoiler_free_right_view"
+                android:layout_width="0px"
+                android:layout_height="4dp"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:background="@color/track_colour" />
+
+
+        </LinearLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:visibility="gone"
+        android:id="@+id/bottom_scrub_view"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <View
+            android:id="@+id/bottom_scrub_view_track"
+            android:layout_width="0px"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:background="@color/track_colour" />
+
+        <View
+            android:id="@+id/bottom_scrub_view_track_blank"
+            android:layout_width="0px"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/exo_white" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

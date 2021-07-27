@@ -1,0 +1,16 @@
+apply plugin: 'maven'
+
+configurations {
+    deployerJar
+}
+
+dependencies {
+    deployerJar "ar.com.synergian:wagon-git:$wagon_git_version"
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        maven { url "https://raw.github.com/synergian/wagon-git/releases"}
+    }
+}

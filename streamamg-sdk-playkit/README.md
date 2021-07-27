@@ -1,0 +1,522 @@
+#  AMG PlayKit Library
+
+The AMG PlayKit library is a simple to use wrapper around the Kaltura PlayKit suite. It provides a single UIView (AMGPlayKit) with which to play and interact with standard AMG provided media streams, whilst automatically taking care of media analytics, Google IMA (media advertising), basic casting and basic player UI.
+
+## Installing AMG PlayKit
+
+The AMGPlayKit is available as a Gradle dependency.
+
+In your app level build.gradle file, add the dependency....
+
+```  
+    implementation "com.streamamg:streamamg-sdk-playkit:(version number)"
+```  
+
+Sync your Gradle files, and the AMGPlayKit should import and be available for use.
+
+## Getting Started
+
+Once the library is installed, you can add AMG PlayKit to your project either programatically, or via layout XML.
+
+The class a developer would interact with is simply called 'AMGPlayKit', this single class provides all standard functions of the PlayKit and will be used for the vast majority of interactions with the PlayKit
+
+### Programatic use
+
+To instantiate an instance of AMGPlaykit, the following constructor should be called:
+
+``` Kotlin
+constructor(context: Context, partnerID: Int)
+```
+for example :
+
+``` Kotlin
+let playKit = AMGPlayKit(context, 1111111)
+```
+You can also initialise the PlayKit without a PartnerID
+``` Kotlin
+constructor(context: Context)
+```
+But you will be required to send the PartnerID separately to play media.
+
+### layout XML use
+
+To instantiate via xml, you simply need to add the view to your XML file as you would with any native Android view
+
+``` xml
+....
+       app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <com.streamamg.amg_playkit.AMGPlayKit
+        android:id="@+id/playkit"
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        app:partner_id="@integer/partner_id"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textview_first"
+        app:use_standard_controls="false"/>
+
+    <LinearLayout
+        android:id="@+id/custom_controls"
+        android:layout_width="0px"
+....
+```
+
+You can add the partner_ID in the xml node, as well as defining the use of the standard controls:
+
+``` xml
+app:use_standard_controls="false" //true will enable the standard overlayed UI controls
+app:partner_id="@integer/partner_id" //an integer defining the partner ID to be used in the player
+```
+
+### Managing the app lifecycle
+
+To correctly serve media and adverts, certain parts of the lifecycle of the app should be passed through to the SDK:
+
+Pausing the player should be managed whenever the app enters the background or the fragment or activity the player is hosted on is paused:
+
+``` Kotlin
+    playKit.playerPause()
+```
+
+And resuming the player should happen when the fragment or activity is resumed (or the app enters the foreground)
+
+``` Kotlin
+    playKit.playerResume()
+```
+
+### Manually updating the PartnerID
+
+PartnerID can be added or changed programatically with the function
+```
+public fun addPartnerID(partnerId: Int)
+```
+
+It should be noted that you cam also send a new PartnerID with any new media sent.
+
+### Media Analytics
+
+Media analytics are automatically included when PlayKit is instantiated.
+
+All analytics data is currently sent to a standard URL, if you require them to be sent elsewhere, you can use the function
+
+``` Kotlin
+public fun setAnalyticsURL(url: String)
+```
+
+## Standard Media controls
+
+A set of UI Controls are provided as standard for the Play Kit, but these are not enabled by default.
+
+To programmatically allow the basic configuration of the controls to be used (overlayed on the player itself), simple add the following line to your Play Kit set up code:
+
+``` Kotlin
+playKit.addStandardControl()
+```
+
+This adds a UI that appears when the user touches the Play Kit window, and has the following characteristics:
+
+- Colour scheme is the standard colours for the components (white and blue)
+- Scrub bar is positioned at the bottom of the player
+- The play state is NOT toggled when the user reveals the controls
+- The controls disappear after 5 seconds of no interaction
+- Track times and current times are not shown
+- Skip forward and backward buttons skip 5 seconds
+
+You can control some of these defaults programatically:
+
+Set the skip forward time:
+
+``` Kotlin
+playKit.skipForwardTime(_ duration: Int) // in milliseconds (eg, 5250)
+```
+
+Set the skip backward time:
+
+``` Kotlin
+playKit.skipBackwardTime(_ duration: Int) // in milliseconds (eg, 5250)
+```
+
+Set the skip forward and backward time:
+
+``` Kotlin
+playKit.skipTime(_ duration: Int) // in milliseconds (eg, 5250)
+```
+
+It is also possible to configure these settings by using the AMGControlBuilder class.
+
+``` Kotlin
+let controls = AMGControlBuilder()
+    .setHideDelay(2500) // sets the delay of inactivity to 2.5 seconds (2500 Milliseconds) before hiding the controls
+    .setTrackTimeShowing(true) // Shows the start and end times, configured depending on the visability of the current time
+    .build()
+    
+    playKit.addStandardControl(config: controls)
+```
+
+The following options are available with the builder:
+
+Set the delay, in milliseconds, of the inactivity timer before hiding the controls
+``` Kotlin
+.setHideDelay(time: Int)
+```
+
+Toggle the visibility of the current track time
+``` Kotlin
+.setTrackTimeShowing(isOn: Bool)
+```
+Set the time, in milliseconds, of skip forward / backward controls
+   ``` Kotlin
+   .setSkipTime(time: Long)
+   ```
+   
+Set the time, in milliseconds, of skip forward control
+   ``` Kotlin
+   .setSkipForwardTime(time: Long)
+   ```
+   
+Set the time, in milliseconds, of skip backward control
+   ``` Kotlin
+   .setSkipBackwardTime(time: Long)
+   ```
+   
+Hide the 'fullscreen' button
+   ``` Kotlin
+   .hideFullScreenButton()
+   ```
+   
+Hide the 'fullscreen' button when the player is in full screen
+   ``` Kotlin
+   .hideFullScreenButtonOnFullScreen()
+   ```
+   
+Specify the image to use for the play button
+   ``` Kotlin
+   .playImage(image: Int) 
+   ```
+   
+Specify the image to use for the pause button
+   ``` Kotlin
+   .pauseImage(image: Int)
+   ```
+   
+Specify the image to use for the fullscreen button
+   ``` Kotlin
+   .fullScreenImage(image: Int)
+   ```
+   
+Specify the image to use for the skip forwards button
+   ``` Kotlin
+   .skipForwardImage(image: Int)
+   ```
+   
+Specify the image to use for the skip backward button
+   ``` Kotlin
+   .skipBackwardImage(image: Int)
+   ```
+   
+Specify the image to use for the 'is live'
+   ``` Kotlin
+   .isLiveImage(image: Int)
+   ```
+   
+Specify the image to use for the logo / watermark
+   ``` Kotlin
+   .logoImage(image: Int)
+   ```
+
+The following options are available, but not yet implemented:
+
+Toggle whether the current media toggles play state when the controls are made visible
+``` Kotlin
+.setFadeInToggleOn(isOn: Bool)
+```
+
+Set the duration of the fade in animation of the controls
+``` Kotlin
+.setFadeInTime(time: Int)
+```
+
+Set the duration of the fade out animation of the controls
+``` Kotlin
+.setFadeOutTime(time: Int)
+```
+
+
+## Media overlays
+
+AMG Play Kit supports the overlaying of an 'is live' badge and a logo as overlays to any media playing.
+
+To specify the badges, use the following functions:
+From a resource file
+``` Kotlin
+playKit.setIsLiveImage(R.drawable.is_live_image, atWidth = 100) //atWidth is an optional size in pixels (will be adjusted to dips) for the width of the image - height will be calculated automatically
+                                                                // the default value is 70 pixels
+```
+and
+
+``` Kotlin
+playKit.setLogoImage(R.drawable.logo_image, atWidth = 100) //atWidth is an optional size in pixels (will be adjusted to dips) for the width of the image - height will be calculated automatically
+                                                              // the default value is 70 pixels
+```
+
+From a URL
+``` Kotlin
+playKit.setIsLiveImage(url = (valid URL of the image), atWidth = 100, atHeight = 50) // atWidth and atHeight are size in pixels (will be adjusted to dips)
+```
+and
+
+``` Kotlin
+playKit.setLogoImage(url = (valid URL of the image), atWidth = 100, atHeight = 50) // atWidth and atHeight are size in pixels (will be adjusted to dips)
+```
+
+To show and hide these overlays, use these functions:
+
+``` Kotlin
+playKit.setiSliveImageShowing(true) // playKit.setiSliveImageShowing(false)
+```
+
+and
+
+``` Kotlin
+playKit.setlogoImageShowing(true) // playKit.setlogoImageShowing(false)
+```
+
+
+## Custom Media Controls
+
+You can also provide your own media controls either as an overlay on the player, or as a separate component.
+
+An example class is provided here (all components are added in an xml file, but could also be added programmatically):
+
+``` Kotlin
+
+class ExamplePlayer : Fragment(), AMGControlInterface {
+    val entryID = "0_xxxxxxx"
+    val PARTNER_ID = 11111111
+    val SERVER_URL = "https://mp.streamamg.com"
+
+    lateinit var playpause: TextView // Play state toggle
+    lateinit var slider: Slider // Scrub bar
+    var player: AMGPlayerInterface? = null
+
+    lateinit var amgPlayKit: AMGPlayKit
+
+    override fun onCreateView(
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_first, container, false)
+        playpause = view.findViewById(R.id.custom_play_pause)
+        slider = view.findViewById(R.id.custom_slider)
+        playpause.setOnClickListener {
+            if (player?.playState() == AMGPlayKitPlayState.playing){
+                player?.pause()
+            } else {
+                player?.play()
+            }
+        }
+
+        slider.addOnChangeListener { slider, value, fromUser ->
+            if (fromUser) {
+                player?.scrub((value * 1000).toLong())
+            }
+        }
+        return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        amgPlayKit = view.findViewById(R.id.playkit)
+        amgPlayKit.setControlInterface(this) // Define the interface for the controller in the player
+        player = amgPlayKit // set the player as the interface for recieving call backs
+        loadMedia()
+    }
+
+// In this instance, we define the play state only when we have confirmation from the player that the play state has changed
+
+    override fun play() {
+        playpause.setText(R.string.pause)
+    }
+
+    override fun pause() {
+        playpause.setText(R.string.play)
+    }
+
+// This function moves the scrub bar thumb to the correct position, keeping track of the playhead automatically
+    override fun changePlayHead(position: Long) {
+        slider.value = (position/1000).toFloat()
+    }
+
+// When the media is changed, we must ensure the scrub bar data is made up to date.
+    override fun changeMediaLength(length: Long) {
+        if (length <= 1000){
+            slider.valueTo = 1.0f
+        } else {
+            slider.valueTo = (length / 1000).toFloat()
+        }
+        duration = length
+        slider.valueFrom = 0f
+        slider.value = 0f
+    }
+
+    fun loadMedia(){
+        amgPlayKit.loadMedia(entryID, PARTNER_ID, SERVER_URL)
+    }
+}
+```
+
+You should accept an interface of type 'AMGPlayerDelegate' this should be the player object itself:
+
+``` Kotlin
+public interface AMGPlayerInterface {
+    fun play()
+    fun pause()
+    fun scrub(position: TimeInterval)
+    fun setControlDelegate(delegate: AMGControlDelegate)
+    fun cancelTimer()
+    fun startControlVisibilityTimer()
+    fun playState(): AMGPlayKitPlayState
+}
+```
+
+play, pause and scrub(position:) control the state of the player
+
+setControlDelegate(delegate:) will change the delegate of the control receiver to whichever class you specify (must conform to AMGControlInterface).
+
+cancelTimer and startControlVisibilityTimer are used when overlaying the player with your controls and determine the visibility of the controls
+
+playState returns the current state of the player (either playing or paused)
+
+To use this control class, you should add it to your Play Kit set up code, for example, in the above class:
+
+``` Kotlin
+       override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+           super.onViewCreated(view, savedInstanceState)
+           amgPlayKit = view.findViewById(R.id.playkit)
+           amgPlayKit.setControlInterface(this) // Define the interface for the controller in the player
+           player = amgPlayKit // set the player as the interface for recieving call backs
+           loadMedia()
+       }
+```
+
+## Play Kit orientation
+
+The AMG Play Kit can be displayed in portrait mode or full screen landscape mode.
+
+The app itself must handle the change in view (either via XML or programmatically), as well as instructing the Play Kit on the desired orientation.
+
+For smooth orientation changes without restarting the current activity, the orientation changes should be specified in the app manifest:
+
+```
+....
+  <activity
+            android:name=".YourActivity"
+            android:label="@string/app_name"
+            android:configChanges="orientation|screenSize|keyboardHidden">
+....
+```
+
+To infer orientation to the Play Kit, you should call the Play Kit's 
+
+``` Kotlin
+   playKit.initialiseSensor(activity, true) // activity is a non null valid Activity reference
+```
+
+As well as (or instead of) changing via a physical orientation change, you can use the 'fullscreen' button on the Play Kit Standard Control UI - this appears, unless it is disabled, in the bottom right corner of the Play Kit view.
+
+To disable this completely, use the '.hideFullScreenButton()' builder function when creating the Control UI configuration
+
+The full screen button can also be disabled only when the Play Kit is full screen using the '.hideFullScreenButtonOnFullScreen()' instead.
+
+If using a non standard Control UI, you can simply call the following functions to implement your own full screen button:
+
+For fullscreen
+``` Kotlin
+playKit.fullScreen()
+```
+To minimise from full screen
+``` Kotlin
+playKit.minimise()
+```
+
+## Sending Media
+
+The main function of PlayKit is to play and interact with media provided by Stream AMG and it's partners.
+
+There are only 5 required elements when requesting media to be played:
+* Partner ID
+* Media URL
+* Entry ID
+* KS (where needed)
+* Media Type
+
+Please note it is no longer required to pass the UIConfig parameter to PlayKit.
+
+If you have provided the Partner ID to the PlayKit already, you do not need to pass this with each media request:
+
+``` Kotlin
+public fun loadMedia(serverUrl: String, entryID: String, ks: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD)
+```
+for example:
+``` Kotlin
+playKit.loadMedia("https://mymediaserver.com", "0_myEntryID", "VALID_KS_PROVIDED_BY_STREAM_AMG", AMGMediaType.Live)
+```
+
+Or with a Partner ID
+``` Kotlin
+public fun loadMedia(serverUrl: String, partnerID: Int, entryID: String, ks: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD)
+```
+for example:
+``` Kotlin
+playKit.loadMedia("https://mymediaserver.com", 111111111, "0_myEntryID", "VALID_KS_PROVIDED_BY_STREAM_AMG", AMGMediaType.Live)
+```
+
+If the media does not require a KSession token, this should be left as null
+
+### Casting URL
+
+To access the casting URL of the currently playing media use the following function:
+
+``` Kotlin
+playKit.castingURL()
+```
+Which returns either a valid URL object (not a String), or a null
+
+You can also pass media data to a separate function to return either a valid URL or null without needing to play the media in app:
+
+``` Kotlin
+playKit.castingURL(server: String, partnerID: Int, entryID: String, ks: String? = null)
+```
+
+### Serving Adverts
+
+AMG PlayKit supports VAST URL adverts.
+
+To serve an advert pre, during or post media, send the VAST URL to the following function
+
+``` Kotlin
+public fun serveAdvert(adTagUrl: String)
+```
+for example:
+``` Kotlin
+playKit.serveAdvert("VAST_URL_FOR_REQUIRED_ADVERT")
+```
+
+### Spoiler Free
+
+PlayKit has the ability to hide the scrub bar and timing lables, effectively making the video 'spoiler free'
+
+To enable (or disable) spoiler free mode:
+
+``` Kotlin
+amgPlayKit?.setSpoilerFree(enabled: Boolean) // true = spoiler free mode on, false = scrub bar on
+```
+
+# Change Log
+
+All notable changes to this project will be documented in this section.
+
+### 0.1 Initial build

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AMGPlayKit">
+        <attr name="partner_id" format="integer"/>
+        <attr name="use_standard_controls" format="boolean"/>
+    </declare-styleable>
+</resources>

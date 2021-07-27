@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="clear">#500000FF</color>
+    <color name="scrub_bar_back_colour">#B2111D1E</color>
+    <color name="track_colour">#4AC2F2</color>
+    <color name="green">#00FF00</color>
+    <color name="amg_live_track">#D0FF39</color>
+    <color name="amg_vod_track">#71ABF3</color>
+</resources>
