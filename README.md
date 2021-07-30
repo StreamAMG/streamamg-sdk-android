@@ -28,14 +28,25 @@ PlayKit:
 
 ## Installation
 
+Add the jitpack repository to your project level build.gradle
+
+```
+allprojects {
+       repositories {
+           ....
+           maven { url "https://jitpack.io" }
+       }
+  }
+```
+
 In your app level build.gradle file, add the dependencies required - you MUST add core for any module other than PlayKit....
 
   ```  
-    implementation "com.streamamg:streamamg-sdk-core:(version number)"
-    implementation "com.streamamg:streamamg-sdk-cloudmatrix:(version number)"
-    implementation "com.streamamg:streamamg-sdk-streamplay:(version number)"
-    implementation "com.streamamg:streamamg-sdk-authentication:(version number)"
-    implementation "com.streamamg:streamamg-sdk-playkit:(version number)"
+    implementation "com.github.streamAMG:streamamg-sdk-core:(version number)"
+    implementation "com.github.streamAMG:streamamg-sdk-cloudmatrix:(version number)"
+    implementation "com.github.streamAMG:streamamg-sdk-streamplay:(version number)"
+    implementation "com.github.streamAMG:streamamg-sdk-authentication:(version number)"
+    implementation "com.github.streamAMG:streamamg-sdk-playkit:(version number)"
   ```  
 
 Sync your Gradle files, and the AMGPlayKit should import and be available for use.

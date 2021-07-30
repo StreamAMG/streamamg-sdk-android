@@ -22,36 +22,23 @@ Quick Start Guide
 
 Gradle implementation
 =====
-
-If you are using Gradle to get libraries into your build, you will need to:
-
-Step 1. Add the StreamAMG SDK maven repository to the list of repositories in Project build.gradle:
+Add the jitpack repository to your project level build.gradle
 
 ```
 allprojects {
-    repositories {
-        ...
-        maven {
-            url "https://api.bitbucket.org/2.0/repositories/sukdev/streamamg-android-sdk/src/releases"
-            credentials {
-                username USERNAME
-                password PASSWORD
-            }
-            authentication {
-                basic(BasicAuthentication)
-            }
-        }
-    }
-}
+       repositories {
+           ....
+           maven { url "https://jitpack.io" }
+       }
+  }
 ```
-Where USERNAME is your BitBucket username and PASSWORD is your app password. Take care not to check these credentials into version control by using a `local.properties` file or similar
 
-Step 2. Add the dependency information in Module app build.gradle:
+In your app level build.gradle file, add the dependencies required - you MUST add core for CloudMatrix
 
-```
-implementation 'com.streamamg:streamamg-sdk-cloudmatrix:$VERSION_NAME'
-```
-Please use the same version for all modules to prevent dependency errors.
+```  
+    implementation "com.github.streamAMG:streamamg-sdk-core:(version number)"
+    implementation "com.github.streamAMG:streamamg-sdk-cloudmatrix:(version number)"
+```  
 
 API Overview
 ============
@@ -540,6 +527,3 @@ Change Log:
 All notable changes to this project will be documented in this section.
 
 ### 0.1 - Initial build
-### 0.0.2
-- Change versioning
-- Add ability to publish aars to BitBucket via wagon-git

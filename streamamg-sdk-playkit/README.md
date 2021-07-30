@@ -4,12 +4,22 @@ The AMG PlayKit library is a simple to use wrapper around the Kaltura PlayKit su
 
 ## Installing AMG PlayKit
 
-The AMGPlayKit is available as a Gradle dependency.
 
-In your app level build.gradle file, add the dependency....
+Add the jitpack repository to your project level build.gradle
+
+```
+allprojects {
+       repositories {
+           ....
+           maven { url "https://jitpack.io" }
+       }
+  }
+```
+
+In your app level build.gradle file, add the dependencies required
 
 ```  
-    implementation "com.streamamg:streamamg-sdk-playkit:(version number)"
+    implementation "com.github.streamAMG:streamamg-sdk-playkit:(version number)"
 ```  
 
 Sync your Gradle files, and the AMGPlayKit should import and be available for use.
@@ -481,14 +491,16 @@ If the media does not require a KSession token, this should be left as null
 To access the casting URL of the currently playing media use the following function:
 
 ``` Kotlin
-playKit.castingURL()
+playKit.castingURL(format: AMGMediaFormat = AMGMediaFormat.HLS)
 ```
 Which returns either a valid URL object (not a String), or a null
+
+Media format is either `AMGMediaFormat.HLS` or `AMGMediaFormat.MP4` - Defaults to HLS
 
 You can also pass media data to a separate function to return either a valid URL or null without needing to play the media in app:
 
 ``` Kotlin
-playKit.castingURL(server: String, partnerID: Int, entryID: String, ks: String? = null)
+playKit.castingURL(server: String, partnerID: Int, entryID: String, ks: String? = null, format: AMGMediaFormat = AMGMediaFormat.HLS)
 ```
 
 ### Serving Adverts

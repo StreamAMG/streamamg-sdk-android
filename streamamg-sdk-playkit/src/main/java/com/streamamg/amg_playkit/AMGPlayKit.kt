@@ -22,6 +22,7 @@ import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.squareup.picasso.Picasso
 import com.streamamg.amg_playkit.analytics.AMGAnalyticsConfig
 import com.streamamg.amg_playkit.analytics.AMGAnalyticsPlugin
+import com.streamamg.amg_playkit.constants.AMGMediaFormat
 import com.streamamg.amg_playkit.constants.AMGMediaType
 import com.streamamg.amg_playkit.constants.AMGPlayKitPlayState
 import com.streamamg.amg_playkit.constants.SensorStateChangeActions
@@ -198,15 +199,29 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 
     }
 
-    fun castingURL(): URL? {
+    fun castingURL(format: AMGMediaFormat = AMGMediaFormat.HLS): URL? {
         currentMediaItem?.let {mediaItem ->
-           return URL("${mediaItem.serverURL}/p/${mediaItem.partnerID}/sp/0/playManifest/entryId/${mediaItem.entryID}/format/url/${validKS(mediaItem.ks)}protocol/https/video/mp4")
-        }
+            when (format){
+                AMGMediaFormat.HLS -> {
+                    return URL("${mediaItem.serverURL}/p/${mediaItem.partnerID}/sp/0/playManifest/entryId/${mediaItem.entryID}/format/applehttp/${validKS(mediaItem.ks)}protocol/https/manifest.m3u8")
+                }
+                AMGMediaFormat.MP4 -> {
+                    return URL("${mediaItem.serverURL}/p/${mediaItem.partnerID}/sp/0/playManifest/entryId/${mediaItem.entryID}/format/url/${validKS(mediaItem.ks)}protocol/https/video/mp4")
+                }
+            }
+         }
         return null
     }
 
-    fun castingURL(server: String, partnerID: Int, entryID: String, ks: String? = null): URL?{
-        return URL("$server/p/$partnerID/sp/0/playManifest/entryId/$entryID/format/url/${validKS(ks)}protocol/https/video/mp4")
+    fun castingURL(server: String, partnerID: Int, entryID: String, ks: String? = null, format: AMGMediaFormat = AMGMediaFormat.HLS): URL?{
+        when (format){
+            AMGMediaFormat.HLS -> {
+                return URL("$server/p/$partnerID/sp/0/playManifest/entryId/$entryID/format/applehttp/${validKS(ks)}protocol/https/manifest.m3u8")
+            }
+            AMGMediaFormat.MP4 -> {
+                return URL("$server/p/$partnerID/sp/0/playManifest/entryId/$entryID/format/url/${validKS(ks)}protocol/https/video/mp4")
+            }
+        }
     }
 
     private fun validKS(ks: String?): String {

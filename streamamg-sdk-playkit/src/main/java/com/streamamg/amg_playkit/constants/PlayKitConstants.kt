@@ -18,3 +18,8 @@ enum class SensorStateChangeActions {
 enum class AMGMediaType {
     Live, VOD, Audio, Live_Audio
 }
+
+
+enum class  AMGMediaFormat {
+    MP4, HLS
+}
