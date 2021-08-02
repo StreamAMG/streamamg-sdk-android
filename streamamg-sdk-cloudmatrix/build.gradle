@@ -35,11 +35,6 @@ android {
 }
 
 dependencies {
-//    Use the local project include for local development but build the artifact
-//    referencing the specific named core version
-
-//    implementation project(':streamamg-sdk-core')
-    //implementation "com.streamamg:streamamg-sdk-core:$SDK_VERSION_NAME"
     implementation project(path: ':streamamg-sdk-core')
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -52,5 +47,3 @@ dependencies {
 
     testImplementation "junit:junit:$junit_version"
 }
-
-//apply from: '../deploy.gradle'
