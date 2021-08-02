@@ -55,7 +55,7 @@ publishing {
             groupId = 'com.github.streamAMG'
             artifactId = 'streamamg-sdk-playkit'
             version = SDK_VERSION_NAME
-            artifact("$rootDir/streamamg-sdk-playkit/build/outputs/aar/amg_playkit-release-${SDK_VERSION_NAME}.aar")
+            artifact("$rootDir/streamamg-sdk-playkit/build/outputs/aar/streamamg-sdk-playkit-release-${SDK_VERSION_NAME}.aar")
             pom.withXml {
                 def dependenciesNode = asNode().appendNode('dependencies')
                 def dependencyNode = dependenciesNode.appendNode('dependency')
