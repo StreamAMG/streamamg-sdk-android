@@ -28,7 +28,7 @@ allprojects {
 In your app level build.gradle file, add the dependencies required
 
 ```  
-    implementation "com.github.streamAMG:streamamg-sdk-core:(version number)"
+    implementation "com.github.StreamAMG.streamamg-sdk-android:streamamg-sdk-core:(version number)"
 ```  
 
 API Overview

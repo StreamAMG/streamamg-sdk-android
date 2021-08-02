@@ -19,7 +19,7 @@ allprojects {
 In your app level build.gradle file, add the dependencies required
 
 ```  
-    implementation "com.github.streamAMG:streamamg-sdk-playkit:(version number)"
+    implementation "com.github.StreamAMG.streamamg-sdk-android:streamamg-sdk-playkit:(version number)"
 ```  
 
 Sync your Gradle files, and the AMGPlayKit should import and be available for use.
@@ -162,7 +162,7 @@ let controls = AMGControlBuilder()
     .setHideDelay(2500) // sets the delay of inactivity to 2.5 seconds (2500 Milliseconds) before hiding the controls
     .setTrackTimeShowing(true) // Shows the start and end times, configured depending on the visability of the current time
     .build()
-    
+
     playKit.addStandardControl(config: controls)
 ```
 
@@ -181,57 +181,57 @@ Set the time, in milliseconds, of skip forward / backward controls
    ``` Kotlin
    .setSkipTime(time: Long)
    ```
-   
+
 Set the time, in milliseconds, of skip forward control
    ``` Kotlin
    .setSkipForwardTime(time: Long)
    ```
-   
+
 Set the time, in milliseconds, of skip backward control
    ``` Kotlin
    .setSkipBackwardTime(time: Long)
    ```
-   
+
 Hide the 'fullscreen' button
    ``` Kotlin
    .hideFullScreenButton()
    ```
-   
+
 Hide the 'fullscreen' button when the player is in full screen
    ``` Kotlin
    .hideFullScreenButtonOnFullScreen()
    ```
-   
+
 Specify the image to use for the play button
    ``` Kotlin
-   .playImage(image: Int) 
+   .playImage(image: Int)
    ```
-   
+
 Specify the image to use for the pause button
    ``` Kotlin
    .pauseImage(image: Int)
    ```
-   
+
 Specify the image to use for the fullscreen button
    ``` Kotlin
    .fullScreenImage(image: Int)
    ```
-   
+
 Specify the image to use for the skip forwards button
    ``` Kotlin
    .skipForwardImage(image: Int)
    ```
-   
+
 Specify the image to use for the skip backward button
    ``` Kotlin
    .skipBackwardImage(image: Int)
    ```
-   
+
 Specify the image to use for the 'is live'
    ``` Kotlin
    .isLiveImage(image: Int)
    ```
-   
+
 Specify the image to use for the logo / watermark
    ``` Kotlin
    .logoImage(image: Int)
@@ -429,7 +429,7 @@ For smooth orientation changes without restarting the current activity, the orie
 ....
 ```
 
-To infer orientation to the Play Kit, you should call the Play Kit's 
+To infer orientation to the Play Kit, you should call the Play Kit's
 
 ``` Kotlin
    playKit.initialiseSensor(activity, true) // activity is a non null valid Activity reference

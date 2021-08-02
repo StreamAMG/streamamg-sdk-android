@@ -31,8 +31,8 @@ allprojects {
 In your app level build.gradle file, add the dependencies required - you MUST add core for Authentication
 
 ```  
-    implementation "com.github.streamAMG:streamamg-sdk-core:(version number)"
-    implementation "com.github.streamAMG:streamamg-sdk-authentication:(version number)"
+    implementation "com.github.StreamAMG.streamamg-sdk-android:streamamg-sdk-core:(version number)"
+    implementation "com.github.StreamAMG.streamamg-sdk-android:streamamg-sdk-authentication:(version number)"
 ```  
 
 API Overview

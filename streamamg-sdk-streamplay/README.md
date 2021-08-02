@@ -32,8 +32,8 @@ allprojects {
 In your app level build.gradle file, add the dependencies required - you MUST add core for StreamPlay
 
 ```  
-    implementation "com.github.streamAMG:streamamg-sdk-core:(version number)"
-    implementation "com.github.streamAMG:streamamg-sdk-streamplay:(version number)"
+    implementation "com.github.StreamAMG.streamamg-sdk-android:streamamg-sdk-core:(version number)"
+    implementation "com.github.StreamAMG.streamamg-sdk-android:streamamg-sdk-streamplay:(version number)"
 ```  
 
 
