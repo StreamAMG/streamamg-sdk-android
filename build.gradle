@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = "1.4.32"
+    ext.kotlin_version = "1.5.21"
     repositories {
         google()
         mavenCentral()
@@ -21,6 +21,68 @@ plugins {
 // Versions of the library modules are matched (eg 1.0 core goes with 1.0 cloudmatrix) to prevent dependency issues
 ext.SDK_VERSION_CODE = 1
 ext.SDK_VERSION_NAME = "0.1"
+
+publishing {
+    publications {
+        core(MavenPublication) {
+            groupId = 'com.github.streamAMG'
+            artifactId = 'streamamg-sdk-core'
+            version = SDK_VERSION_NAME
+            artifact("$rootDir/streamamg-sdk-core/build/outputs/aar/streamamg-sdk-core-release-${SDK_VERSION_NAME}.aar")
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+                def dependencyNode = dependenciesNode.appendNode('dependency')
+                dependencyNode.appendNode('groupId', 'androidx.security')
+                dependencyNode.appendNode('artifactId', 'security-crypto')
+                dependencyNode.appendNode('version', '1.1.0-alpha03')
+            }
+        }
+        cloudmatrix(MavenPublication) {
+            groupId = 'com.github.streamAMG'
+            artifactId = 'streamamg-sdk-cloudmatrix'
+            version = SDK_VERSION_NAME
+            artifact("$rootDir/streamamg-sdk-cloudmatrix/build/outputs/aar/streamamg-sdk-cloudmatrix-release-${SDK_VERSION_NAME}.aar")
+        }
+        streamplay(MavenPublication) {
+            groupId = 'com.github.streamAMG'
+            artifactId = 'streamamg-sdk-streamplay'
+            version = SDK_VERSION_NAME
+            artifact("$rootDir/streamamg-sdk-streamplay/build/outputs/aar/streamamg-sdk-streamplay-release-${SDK_VERSION_NAME}.aar")
+        }
+        authentication(MavenPublication) {
+            groupId = 'com.github.streamAMG'
+            artifactId = 'streamamg-sdk-authentication'
+            version = SDK_VERSION_NAME
+            artifact("$rootDir/streamamg-sdk-authentication/build/outputs/aar/streamamg-sdk-authentication-release-${SDK_VERSION_NAME}.aar")
+        }
+        playkit(MavenPublication) {
+            groupId = 'com.github.streamAMG'
+            artifactId = 'streamamg-sdk-playkit'
+            version = SDK_VERSION_NAME
+            artifact("$rootDir/streamamg-sdk-playkit/build/outputs/aar/amg_playkit-release-${SDK_VERSION_NAME}.aar")
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+                def dependencyNode = dependenciesNode.appendNode('dependency')
+                dependencyNode.appendNode('groupId', 'com.kaltura.player')
+                dependencyNode.appendNode('artifactId', 'tvplayer')
+                dependencyNode.appendNode('version', '4.12.0')
+                def dependencyNode2 = dependenciesNode.appendNode('dependency')
+                dependencyNode2.appendNode('groupId', 'com.kaltura.playkit')
+                dependencyNode2.appendNode('artifactId', 'imaplugin')
+                dependencyNode2.appendNode('version', '4.12.0')
+                def dependencyNode3 = dependenciesNode.appendNode('dependency')
+                dependencyNode3.appendNode('groupId', 'androidx.appcompat')
+                dependencyNode3.appendNode('artifactId', 'appcompat')
+                dependencyNode3.appendNode('version', '1.3.0')
+                def dependencyNode4 = dependenciesNode.appendNode('dependency')
+                dependencyNode4.appendNode('groupId', 'com.google.android.material')
+                dependencyNode4.appendNode('artifactId', 'material')
+                dependencyNode4.appendNode('version', '1.3.0')
+            }
+        }
+    }
+}
+
 
 repositories {
     mavenCentral()
