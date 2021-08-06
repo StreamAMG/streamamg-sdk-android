@@ -55,11 +55,13 @@ alternatively, to install all SDK elements, use the following line:
   implementation "com.github.StreamAMG:streamamg-sdk-android:(version number)"
 ```
 
-Sync your Gradle files, and the AMGPlayKit should import and be available for use.
+Sync your Gradle files, and the AMG SDK should import and be available for use.
 
 Change Log:
 ===========
 
 All notable changes to this project will be documented in this section.
+
+### 0.2 PlayKit bug fixes
 
 ### 0.1 - Initial build

@@ -7,11 +7,9 @@ import android.hardware.SensorManager
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.OrientationEventListener
-import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import com.kaltura.playkit.*
@@ -31,7 +29,6 @@ import com.streamamg.amg_playkit.interfaces.AMGControlInterface
 import com.streamamg.amg_playkit.interfaces.AMGPlayKitListener
 import com.streamamg.amg_playkit.interfaces.AMGPlayerInterface
 import com.streamamg.amg_playkit.models.*
-import java.net.URI
 import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
@@ -118,7 +115,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         isLiveImageView = view.findViewById(R.id.is_live_image_view)
         logoImageView = view.findViewById(R.id.logo_image_view)
         setUpStandardControls()
-        player = PlayKitManager.loadPlayer(context, createAnalyticsPlugin(context))
+        player = PlayKitManager.loadPlayer(context, createPlugins(context))
         player?.let { player ->
             playerView.addView(player.view)
             player.addListener(this, PlayerEvent.stateChanged) { event ->
@@ -222,6 +219,10 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
                 return URL("$server/p/$partnerID/sp/0/playManifest/entryId/$entryID/format/url/${validKS(ks)}protocol/https/video/mp4")
             }
         }
+    }
+
+    fun currentTime(): Long {
+        return player?.currentPosition ?: 0
     }
 
     private fun validKS(ks: String?): String {
@@ -377,13 +378,13 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         player?.updatePluginConfig(AMGAnalyticsPlugin.factory.name, kavaConfig)
     }
 
-    private fun createAnalyticsPlugin(context: Context): PKPluginConfigs {
-        PlayKitManager.registerPlugins(context, AMGAnalyticsPlugin.factory, IMAPlugin.factory)
+    private fun createPlugins(context: Context): PKPluginConfigs {
+        PlayKitManager.registerPlugins(context, AMGAnalyticsPlugin.factory) //, IMAPlugin.factory
         var pluginConfigs = PKPluginConfigs()
-        var kavaConfig = AMGAnalyticsConfig()
-                .setPartnerId(partnerId)
-                .setBaseUrl(analyticsURL)
-        pluginConfigs.setPluginConfig(AMGAnalyticsPlugin.factory.name, kavaConfig)
+//        var kavaConfig = AMGAnalyticsConfig()
+//                .setPartnerId(partnerId)
+//                .setBaseUrl(analyticsURL)
+//        pluginConfigs.setPluginConfig(AMGAnalyticsPlugin.factory.name, kavaConfig)
         pluginConfigs.setPluginConfig(IMAPlugin.factory.name, getIMAPluginConfig(""))
         return pluginConfigs
     }
@@ -405,7 +406,6 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         player?.let {
 
             when (currentPlayerState) {
-                AMGPlayerState.Stopped,
                 AMGPlayerState.Error,
                 AMGPlayerState.Idle -> {
                     currentMediaItem?.let { item ->
