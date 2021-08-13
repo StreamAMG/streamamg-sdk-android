@@ -464,6 +464,10 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         }
     }
 
+    override fun goLive() {
+        player?.seekTo(player?.duration ?: 0)
+    }
+
     /**
     Set the time skipped for forward skip
      */

@@ -16,7 +16,7 @@ plugins {
 }
 // Versions of the library modules are matched (eg 1.0 core goes with 1.0 cloudmatrix) to prevent dependency issues
 ext.SDK_VERSION_CODE = 2
-ext.SDK_VERSION_NAME = "0.2"
+ext.SDK_VERSION_NAME = "0.2.1"
 
 publishing {
     publications {

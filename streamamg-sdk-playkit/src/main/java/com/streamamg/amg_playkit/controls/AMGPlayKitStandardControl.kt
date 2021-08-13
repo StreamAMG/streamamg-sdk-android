@@ -30,11 +30,13 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
     lateinit var fullScreenButton: ImageView
     lateinit var scrubBar: SeekBar
     lateinit var startTime: TextView
-    lateinit var endTime: TextView
+    //lateinit var endTime: TextView
+    lateinit var liveButton: TextView
     var showingTimes = false
     var playIcon: Int = R.drawable.ic_play_button
     var pauseIcon: Int = R.drawable.ic_video_pause
-    var fullScreenIcon: Int = R.drawable.ic_video_pause
+    var fullScreenIcon: Int = R.drawable.ic_fullscreen_button
+    var minimiseIcon: Int = R.drawable.ic_minimise_button
 
     var playerState: AMGPlayKitPlayState = AMGPlayKitPlayState.idle
 
@@ -83,7 +85,8 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
         fullScreenButton = controlsView.findViewById(R.id.fullscreen_button)
         scrubBar = controlsView.findViewById(R.id.scrub_bar)
         startTime = controlsView.findViewById(R.id.start_time)
-        endTime = controlsView.findViewById(R.id.end_time)
+        liveButton = controlsView.findViewById(R.id.live_button)
+      //  endTime = controlsView.findViewById(R.id.end_time)
         mainView = controlsView.findViewById(R.id.main_view)
         bottomScrubBar = controlsView.findViewById(R.id.bottom_scrub_view)
         bottomScrubBarTrack = controlsView.findViewById(R.id.bottom_scrub_view_track)
@@ -117,10 +120,10 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
             showingTimes = it.trackTimeShowing
             if (showingTimes) {
                 startTime.visibility = View.VISIBLE
-                endTime.visibility = View.VISIBLE
+        //        endTime.visibility = View.VISIBLE
             } else {
                 startTime.visibility = View.GONE
-                endTime.visibility = View.GONE
+          //      endTime.visibility = View.GONE
             }
 
             shouldHideOnOrientation = -1
@@ -153,6 +156,15 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
             if (it.fullScreenImage > 0) {
                 fullScreenButton.setImageResource(it.fullScreenImage)
             }
+
+            if (it.minimiseImage > 0) {
+                fullScreenButton.setImageResource(it.fullScreenImage)
+            }
+
+            liveButton.setOnClickListener {
+                player?.goLive()
+            }
+
         }
         wireControls()
     }
@@ -201,6 +213,11 @@ player?.skipForward()
     }
 
     internal fun hideFullScreenButton(orientation: Int) {
+        if (orientation == 0){
+            fullScreenButton.setImageResource(minimiseIcon)
+        } else {
+            fullScreenButton.setImageResource(fullScreenIcon)
+        }
         if (shouldHideOnOrientation == -1){
             fullScreenButton.visibility = VISIBLE
             return
@@ -242,6 +259,9 @@ player?.skipForward()
         spoilerFreeLeftView.setBackgroundResource(scrubBarLiveColour)
         spoilerFreeRightView.setBackgroundResource(scrubBarLiveColour)
         setSpoilerFree(spoilerFreeEnabled)
+        startTime.visibility = GONE
+        liveButton.visibility = VISIBLE
+        liveButton.setTextColor(ContextCompat.getColor(context, scrubBarLiveColour))
     }
 
     internal fun setVodColours(){
@@ -250,6 +270,9 @@ player?.skipForward()
         spoilerFreeLeftView.setBackgroundResource(scrubBarVODColour)
         spoilerFreeRightView.setBackgroundResource(scrubBarVODColour)
         setSpoilerFree(spoilerFreeEnabled)
+        startTime.visibility = VISIBLE
+        liveButton.visibility = GONE
+        liveButton.setTextColor(ContextCompat.getColor(context, scrubBarVODColour))
     }
 
     fun setSpoilerFree(isSF: Boolean){
@@ -271,14 +294,20 @@ player?.skipForward()
     override fun changePlayHead(position: Long) {
         scrubBar.progress = (position / 1000).toInt()
         val timeRemaining = duration - position
-        startTime.text = timeForDisplay(position)
-        endTime.text = timeForDisplay(timeRemaining)
+        startTime.text = "${timeForDisplay(position)} / ${timeForDisplay(timeRemaining)}"
+      //  endTime.text = timeForDisplay(timeRemaining)
 
         val percentage = position.toFloat() / duration.toFloat()
         val lpt = LayoutParams(0, MATCH_PARENT, percentage)
         bottomScrubBarTrack.layoutParams = lpt
         val lpb = LayoutParams(0, MATCH_PARENT, 1 - percentage)
         bottomScrubBarBlank.layoutParams = lpb
+
+        if (position < duration - 1000) {
+            liveButton.setText(R.string.go_live)
+        } else {
+            liveButton.setText(R.string.live)
+        }
     }
 
     fun paddedInt(toPad: Int): String {
@@ -322,8 +351,8 @@ player?.skipForward()
 
     private fun updateTimes() {
         if (showingTimes) {
-            startTime.text = "00:00"
-            endTime.text = timeFromLong(duration)
+            startTime.text = "0:00"
+      //      endTime.text = timeFromLong(duration)
         }
     }
 

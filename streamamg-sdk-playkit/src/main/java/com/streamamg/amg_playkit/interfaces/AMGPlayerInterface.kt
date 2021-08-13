@@ -15,4 +15,5 @@ interface AMGPlayerInterface {
     fun startControlVisibilityTimer()
     fun playState(): AMGPlayKitPlayState
     fun swapOrientation()
+    fun goLive()
 }
