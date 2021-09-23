@@ -15,7 +15,6 @@ import com.google.gson.JsonObject
 import com.kaltura.android.exoplayer2.C
 import com.kaltura.netkit.connect.executor.APIOkRequestsExecutor
 import com.kaltura.netkit.connect.executor.RequestQueue
-import com.kaltura.netkit.connect.request.RequestBuilder
 import com.kaltura.netkit.utils.OnRequestCompletion
 import com.kaltura.playkit.*
 import com.kaltura.playkit.PKMediaEntry.MediaEntryType
@@ -24,10 +23,6 @@ import com.kaltura.playkit.player.metadata.PKTextInformationFrame
 import com.kaltura.playkit.plugin.kava.BuildConfig
 import com.kaltura.playkit.plugins.kava.*
 import com.kaltura.playkit.utils.Consts
-import com.kaltura.playkit.utils.Consts.HTTP_METHOD_POST
-import okhttp3.MediaType
-import okhttp3.Request
-import okhttp3.RequestBody
 import org.json.JSONException
 import org.json.JSONObject
 import java.text.DecimalFormat
@@ -43,7 +38,7 @@ class AMGAnalyticsPlugin : PKPlugin() {
     private var mediaConfig: PKMediaConfig? = null
     private var dataHandler: AMGDataHandler? = null
     private var requestExecutor: RequestQueue? = null
-    private var pluginConfig: AMGAnalyticsConfig? = null
+    private var pluginConfig: AMGAnalyticsPluginConfig? = null
 
     private var playheadUpdated: PlayheadUpdated? = null
     private var playReached25 = false
@@ -409,19 +404,20 @@ class AMGAnalyticsPlugin : PKPlugin() {
         pluginConfig?.let { plugin ->
             params?.let { data ->
 
-            val body = AMGAnalyticsRequest(data["eid"] ?: "",
-                    data["partnerId"]?.toInt() ?: 0,
-                    data["dhm"] ?: "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
-                    data["sid"] ?: "") //
-                body.dpl = data["dpl"]?.toLong() ?: 0
-                body.dcn = data["dcn"]?.toLong() ?: 0
-                body.vls = currentLoadStatus
-                body.vnt = eventID
-          //  val requestBuilder =     KavaService.sendAnalyticsEvent(plugin.baseUrl, dataHandler?.getUserAgent(), params)
-                body.log()
-                val requestBuilder = AMGRequestBuilder.getRequest(plugin.baseUrl, dataHandler?.getUserAgent(), body)
+//            val body = AMGAnalyticsRequest(data["eid"] ?: "",
+//                    data["partnerId"]?.toInt() ?: 0,
+//                    data["dhm"] ?: "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
+//                    data["sid"] ?: "") //
+//                body.dpl = data["dpl"]?.toLong() ?: 0
+//                body.dcn = data["dcn"]?.toLong() ?: 0
+//                body.vls = currentLoadStatus
+//                body.vnt = eventID
+//          //  val requestBuilder =     KavaService.sendAnalyticsEvent(plugin.baseUrl, dataHandler?.getUserAgent(), params)
+//                body.log()
+             //   val requestBuilder = AMGRequestBuilder.getRequest(plugin.baseUrl, dataHandler?.getUserAgent(), body)
 //                val requestBuilder = getRequest(plugin.baseUrl!!, body)
 //
+  val requestBuilder =     AMGRequestBuilder.sendAnalyticsEvent(plugin.baseUrl, dataHandler?.getUserAgent(), data)
             requestBuilder.completion(OnRequestCompletion { response ->
                 log.d("onComplete: " + event.name)
                 try {
@@ -429,10 +425,14 @@ class AMGAnalyticsPlugin : PKPlugin() {
                         log.w("Kava event response is null")
                         return@OnRequestCompletion
                     }
-                    val jsonObject = JSONObject(response.response)
-                 //   log.d("Response: $jsonObject")
-                    if (jsonObject.has("sid")){
-                        dataHandler?.updateSessionID(jsonObject.getString("sid"))
+//                    val jsonObject = JSONObject(response.response)
+//                 //   log.d("Response: $jsonObject")
+//                    if (jsonObject.has("sid")){
+//                        dataHandler?.updateSessionID(jsonObject.getString("sid"))
+//                    }
+                    val split = response.response.split(":")
+                    if (split.count() == 2){
+                        dataHandler?.updateSessionID(split[1])
                     }
 
                 } catch (e: JSONException) {
@@ -506,14 +506,14 @@ class AMGAnalyticsPlugin : PKPlugin() {
                 !TextUtils.isEmpty(mediaConfig!!.mediaEntry!!.metadata["entryId"])
     }
 
-    private fun parsePluginConfig(config: Any?): AMGAnalyticsConfig? {
-        if (config is AMGAnalyticsConfig) {
+    private fun parsePluginConfig(config: Any?): AMGAnalyticsPluginConfig? {
+        if (config is AMGAnalyticsPluginConfig) {
             return config
         } else if (config is JsonObject) {
-            return Gson().fromJson(config as JsonObject?, AMGAnalyticsConfig::class.java)
+            return Gson().fromJson(config as JsonObject?, AMGAnalyticsPluginConfig::class.java)
         }
         // If no config passed, create default one.
-        return AMGAnalyticsConfig()
+        return AMGAnalyticsPluginConfig()
     }
 
     private fun maybeSentPlayerReachedEvent() {

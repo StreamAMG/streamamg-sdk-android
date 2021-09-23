@@ -62,6 +62,8 @@ Change Log:
 
 All notable changes to this project will be documented in this section.
 
-### 0.2 PlayKit bug fixes
+### 0.3 - Updates to Core and major Playkit feature enhancements
+
+### 0.2 -> 0.2.1 PlayKit bug fixes
 
 ### 0.1 - Initial build

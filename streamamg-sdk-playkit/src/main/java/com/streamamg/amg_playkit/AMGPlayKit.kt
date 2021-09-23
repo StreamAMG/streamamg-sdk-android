@@ -12,23 +12,30 @@ import android.view.LayoutInflater
 import android.view.OrientationEventListener
 import android.widget.ImageView
 import android.widget.LinearLayout
+import com.google.gson.JsonObject
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.kaltura.playkit.*
 import com.kaltura.playkit.player.PKPlayerErrorType
 import com.kaltura.playkit.player.PlayerController
 import com.kaltura.playkit.plugins.ima.IMAConfig
 import com.kaltura.playkit.plugins.ima.IMAPlugin
+import com.kaltura.playkit.plugins.youbora.YouboraPlugin
 import com.squareup.picasso.Picasso
 import com.streamamg.amg_playkit.analytics.AMGAnalyticsConfig
+import com.streamamg.amg_playkit.analytics.AMGAnalyticsPluginConfig
 import com.streamamg.amg_playkit.analytics.AMGAnalyticsPlugin
-import com.streamamg.amg_playkit.constants.AMGMediaFormat
-import com.streamamg.amg_playkit.constants.AMGMediaType
-import com.streamamg.amg_playkit.constants.AMGPlayKitPlayState
-import com.streamamg.amg_playkit.constants.SensorStateChangeActions
+import com.streamamg.amg_playkit.constants.*
 import com.streamamg.amg_playkit.controls.AMGPlayKitStandardControl
 import com.streamamg.amg_playkit.interfaces.AMGControlInterface
 import com.streamamg.amg_playkit.interfaces.AMGPlayKitListener
 import com.streamamg.amg_playkit.interfaces.AMGPlayerInterface
 import com.streamamg.amg_playkit.models.*
+import com.streamamg.amg_playkit.network.isLive.PlayKitIsLiveAPI
+import com.streamamg.amg_playkit.playkitExtensions.isLive
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
@@ -41,12 +48,12 @@ The SDK, at it's most basic, is a LinearLayout, instantiated either programatica
  */
 class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 
-    private var player: Player? = null
+    internal var player: Player? = null
     private var playerState: PlayerState? = null
     lateinit var playerView: LinearLayout
     private var partnerId: Int = 0
     private var usingStandardControls: Boolean = false
-    private var analyticsURL = "https://nudeiys3md.execute-api.eu-west-1.amazonaws.com/api/submit" //"http://stats.mp.streamamg.com/SessionUpdate"
+    private var analyticsURL = "http://stats.mp.streamamg.com/SessionUpdate" //"https://nudeiys3md.execute-api.eu-west-1.amazonaws.com/api/submit" //
     private var control: AMGControlInterface? = null
     lateinit var controlsView: AMGPlayKitStandardControl
     private var controlVisibleDuration: Long = 5000
@@ -74,6 +81,11 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 
     private var currentMediaType: AMGMediaType = AMGMediaType.VOD
 
+    private lateinit var retroFitInstance: Retrofit
+    lateinit var isLiveAPI: PlayKitIsLiveAPI
+
+
+    var analyticsConfiguration = AMGAnalyticsConfig()
 
     /**
     Standard initialisation
@@ -81,8 +93,8 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
     - Parameter context: The context of the activity or fragment the view is being placed in
     - Returns: A UIView containing an instantiated instance of the Kaltura PlayKit
      */
-    constructor(context: Context) : super(context) {
-        setUpView(context)
+    constructor(context: Context, analytics: AMGAnalyticsConfig? = null) : super(context) {
+        createPlayer(context, analytics)
     }
 
     /**
@@ -94,9 +106,9 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 
     Partner ID can also be sent separately or as part of media data when loading media
      */
-    constructor(context: Context, partnerID: Int) : super(context) {
+    constructor(context: Context, partnerID: Int, analytics: AMGAnalyticsConfig? = null) : super(context) {
         partnerId = partnerID
-        setUpView(context)
+        createPlayer(context, analytics)
     }
 
     /**
@@ -104,18 +116,23 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
      */
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet) {
         setUpAttributes(context, attributeSet)
-        setUpView(context)
+        //createPlayer(context)
     }
 
-    private fun setUpView(context: Context) {
+    fun createPlayer(context: Context, analytics: AMGAnalyticsConfig? = null) {
+        analytics?.let {analytics ->
+            analyticsConfiguration = analytics
+        }
         val inflater: LayoutInflater = LayoutInflater.from(context)
         var view = inflater.inflate(R.layout.playkit_view, this, true)
         playerView = view.findViewById(R.id.player_view)
         controlsView = view.findViewById(R.id.standard_controls)
         isLiveImageView = view.findViewById(R.id.is_live_image_view)
         logoImageView = view.findViewById(R.id.logo_image_view)
+        setUpNetwork()
         setUpStandardControls()
-        player = PlayKitManager.loadPlayer(context, createPlugins(context))
+        val plugins = createPlugins(context)
+        player = PlayKitManager.loadPlayer(context, plugins)
         player?.let { player ->
             playerView.addView(player.view)
             player.addListener(this, PlayerEvent.stateChanged) { event ->
@@ -194,6 +211,18 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
             bringControlsToForeground()
         }
 
+    }
+
+    private fun setUpNetwork(){
+        val gson: Gson = GsonBuilder().create()
+        val client: OkHttpClient = OkHttpClient.Builder().build()
+        retroFitInstance = Retrofit.Builder()
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .baseUrl("https://open.http.mp.streamamg.com")
+            .client(client)
+            .build()
+
+        isLiveAPI = retroFitInstance.create(PlayKitIsLiveAPI::class.java)
     }
 
     fun castingURL(format: AMGMediaFormat = AMGMediaFormat.HLS): URL? {
@@ -341,6 +370,13 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         this.partnerId = partnerId
     }
 
+//    fun isLive(): Boolean {
+//        player?.let { player ->
+//            return player.isLive
+//        }
+//        return false
+//    }
+
     private fun loadMedia(mediaConfig: MediaItem, mediaType: AMGMediaType = AMGMediaType.VOD, from: Long = 0) {
         currentMediaItem = mediaConfig
         currentMediaType = mediaType
@@ -348,6 +384,17 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
             updateAnalyticsPlugin(mediaConfig.entryID)
             player.prepare(mediaConfig.mediaConfig)
             controlsView.setMediaType(mediaType)
+            if (mediaType == AMGMediaType.VOD){
+                isLive(mediaConfig.serverURL, mediaConfig.entryID){isLiveBool ->
+                    if (isLiveBool){
+                        controlsView.setMediaType(AMGMediaType.Live)
+                        controlsView.setIsLive()
+                    }
+                }
+            } else {
+                controlsView.setMediaType(AMGMediaType.Live)
+                controlsView.setIsLive()
+            }
             player.play()
         }
     }
@@ -371,20 +418,42 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
     }
 
     private fun updateAnalyticsPlugin(entryID: String) {
-        val kavaConfig = AMGAnalyticsConfig()
+        if (analyticsConfiguration.analyticsService == AMGAnalyticsService.AMGANALYTICS) {
+            val kavaConfig = AMGAnalyticsPluginConfig()
                 .setPartnerId(partnerId)
                 .setBaseUrl(analyticsURL)
                 .setEntryId(entryID)
-        player?.updatePluginConfig(AMGAnalyticsPlugin.factory.name, kavaConfig)
+            player?.updatePluginConfig(AMGAnalyticsPlugin.factory.name, kavaConfig)
+        }
     }
 
     private fun createPlugins(context: Context): PKPluginConfigs {
-        PlayKitManager.registerPlugins(context, AMGAnalyticsPlugin.factory) //, IMAPlugin.factory
+
         var pluginConfigs = PKPluginConfigs()
-//        var kavaConfig = AMGAnalyticsConfig()
-//                .setPartnerId(partnerId)
-//                .setBaseUrl(analyticsURL)
-//        pluginConfigs.setPluginConfig(AMGAnalyticsPlugin.factory.name, kavaConfig)
+        when (analyticsConfiguration.analyticsService) {
+            AMGAnalyticsService.AMGANALYTICS -> {
+                PlayKitManager.registerPlugins(context, AMGAnalyticsPlugin.factory)
+        var kavaConfig = AMGAnalyticsPluginConfig()
+                .setPartnerId(analyticsConfiguration.partnerID)
+                .setBaseUrl(analyticsURL)
+        pluginConfigs.setPluginConfig(AMGAnalyticsPlugin.factory.name, kavaConfig)
+            }
+            AMGAnalyticsService.YOUBORA -> {
+                PlayKitManager.registerPlugins(context, YouboraPlugin.factory)
+                val youboraConfig = JsonObject()
+                youboraConfig.addProperty("accountCode", analyticsConfiguration.accountCode)
+                pluginConfigs.setPluginConfig(YouboraPlugin.factory.name, youboraConfig)
+
+
+            }
+            else -> {}
+
+        }
+
+        PlayKitManager.registerPlugins(context, IMAPlugin.factory)
+
+         //, IMAPlugin.factory
+
         pluginConfigs.setPluginConfig(IMAPlugin.factory.name, getIMAPluginConfig(""))
         return pluginConfigs
     }

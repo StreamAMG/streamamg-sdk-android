@@ -23,3 +23,7 @@ enum class AMGMediaType {
 enum class  AMGMediaFormat {
     MP4, HLS
 }
+
+enum class AMGAnalyticsService {
+    DISABLED, YOUBORA, AMGANALYTICS
+}

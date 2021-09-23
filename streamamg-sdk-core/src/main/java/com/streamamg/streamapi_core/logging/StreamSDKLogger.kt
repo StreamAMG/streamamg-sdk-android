@@ -95,7 +95,7 @@ class StreamSDKLogger() {
     }
 
     fun logBool(condition: Boolean, description: String, tag: String = LOG_TAG, level: StreamSDKLoggingLevel = DEFAULT_LOG_LEVEL) {
-        if (logsNormalLogEntries()) {
+        if (logsBools()) {
             if (condition) {
                 alwaysLog(tag, "$description: True", level)
             } else {
@@ -174,24 +174,28 @@ class StreamSDKLogger() {
         }
     }
 
-    private fun logsNormalLogEntries(): Boolean {
+    internal fun logsNormalLogEntries(): Boolean {
         return LOGGIN_ON && LOG_STANDARD
     }
 
-    private fun logsErrors(): Boolean {
+    internal fun logsErrors(): Boolean {
         return LOG_ERRORS
     }
 
-    private fun logsNetworkEntries(): Boolean {
+    internal fun logsNetworkEntries(): Boolean {
         return LOGGIN_ON && LOG_NETWORK
     }
 
-    private fun logsLongEntries(): Boolean {
+    internal fun logsLongEntries(): Boolean {
         return LOGGIN_ON && LOG_LONG_LOGS
     }
 
-    private fun logsLists(): Boolean {
+    internal fun logsLists(): Boolean {
         return LOGGIN_ON && LOG_LISTS
+    }
+
+    internal fun logsBools(): Boolean {
+        return LOGGIN_ON && LOG_BOOLS
     }
 
 }

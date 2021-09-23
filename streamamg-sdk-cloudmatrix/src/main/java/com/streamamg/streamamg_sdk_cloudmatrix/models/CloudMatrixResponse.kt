@@ -1,5 +1,6 @@
 package com.streamamg.streamamg_sdk_cloudmatrix.models
 
+import com.streamamg.streamamg_sdk_cloudmatrix.services.logCM
 import com.streamamg.streamamg_sdk_cloudmatrix.services.logErrorCM
 import com.streamamg.streamamg_sdk_cloudmatrix.services.logListCM
 import com.streamamg.streamapi_core.models.BaseStreamResponse
@@ -35,7 +36,7 @@ data class CloudMatrixResponse(
      * Core should be configured to have logging enabled
      */
     fun logSearchResults() {
-        logErrorCM("CM --------------------------------------")
+        logCM("CM --------------------------------------")
         if (itemData != null) {
             for (result: CloudMatrixItemDataModel in itemData) {
                 logListCM(  result.getTitle() ?: "")

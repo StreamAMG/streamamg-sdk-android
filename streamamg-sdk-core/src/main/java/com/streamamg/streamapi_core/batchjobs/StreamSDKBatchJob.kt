@@ -9,11 +9,13 @@ import com.streamamg.streamapi_core.logging.logErrorCR
  * Core component that services a batch of SDK network requests and fires their callbacks once all the jobs are complete
  * Supports any job that conforms to JobInterface (CloudMatrixJob and StreamPlayJob both conform)
  */
-class StreamSDKBatchJob: BatchInterface {
+class StreamSDKBatchJob(val batchCompletionListener: BatchCompletionInterface? = null): BatchInterface {
     var jobs: ArrayList<JobInterface> = ArrayList()
     var hasCompleted = false
     var hasFired = false
     var tally = 0
+    var removeJobsOnCompletion = false
+
 
     /**
      * Add a job to the current batch
@@ -30,7 +32,8 @@ class StreamSDKBatchJob: BatchInterface {
     /**
      * Start the batch jobs running - the jobs will run concurrently
      */
-    fun fireBatch(){
+    fun fireBatch(removeOnCompletion: Boolean = false){
+        removeJobsOnCompletion = removeOnCompletion
         if (!hasFired){
             if (jobs.isEmpty()){
                 logErrorCR("There are no jobs to process")
@@ -77,12 +80,28 @@ class StreamSDKBatchJob: BatchInterface {
         }
     }
 
+    fun removeJobs(){
+        hasCompleted = false
+        hasFired = false
+        tally = 0
+        jobs.clear()
+    }
+
+    fun removeJobsIfNotRunning(){
+        if (!hasFired || hasCompleted){
+            removeJobs()
+        }
+    }
+
     private fun completeJobs() {
         hasCompleted = true
         hasFired = false
         jobs.forEach {
             it.runCallback()
         }
-
+        batchCompletionListener?.batchJobsCompleted()
+        if (removeJobsOnCompletion){
+            removeJobs()
+        }
     }
 }

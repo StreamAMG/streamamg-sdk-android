@@ -56,11 +56,14 @@ class HeatMap {
                 currentSection += 1
             }
         }
+        if (currentSection >= sectionSpread.size){
+            currentSection = sectionSpread.size - 1
+        }
         sectionStart = sectionSpread[currentSection]
-        if (currentSection < heatMapSize - 1) {
-            sectionEnd = sectionSpread[currentSection + 1]
+        sectionEnd = if (currentSection < heatMapSize - 1) {
+            sectionSpread[currentSection + 1]
         } else {
-            sectionEnd = duration
+            duration
         }
         heatMap[currentSection] = 1
     }

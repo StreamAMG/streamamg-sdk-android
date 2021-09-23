@@ -10,6 +10,7 @@ class StreamAMGError(val code: Int = -1, message: String)
          * Returns -1 if no code is available
          */
         var messages: ArrayList<String> = ArrayList()
+        var internalCode: Int = -1
 
         fun addMessage(message: String){
                 messages.add(message)
@@ -33,7 +34,26 @@ class StreamAMGError(val code: Int = -1, message: String)
         }
 
         init {
+                internalCode = code
                 addMessage(message)
+        }
+
+        /**
+         * Returns an array containing all errors reported
+         */
+        fun getAllMessages(): ArrayList<String> {
+                return messages
+        }
+
+        /**
+         * Returns a single string containing all errors reported
+         */
+        fun getErrorCode(): Int {
+                return internalCode
+        }
+
+        fun setCode(i: Int) {
+                internalCode = i
         }
 
 }

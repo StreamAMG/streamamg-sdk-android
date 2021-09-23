@@ -85,7 +85,7 @@ class AMGDataHandler(context: Context, player: Player?) {
      *
      * @param pluginConfig - plugin configurations.
      */
-    fun onUpdateConfig(pluginConfig: AMGAnalyticsConfig) {
+    fun onUpdateConfig(pluginConfig: AMGAnalyticsPluginConfig) {
         if (pluginConfig.partnerId != null) {
             partnerId = pluginConfig.partnerId.toString()
         }
@@ -100,14 +100,14 @@ class AMGDataHandler(context: Context, player: Player?) {
      * @param mediaConfig  - media configurations.
      * @param pluginConfig - plugin configurations
      */
-    fun onUpdateMedia(mediaConfig: PKMediaConfig, pluginConfig: AMGAnalyticsConfig) {
+    fun onUpdateMedia(mediaConfig: PKMediaConfig, pluginConfig: AMGAnalyticsPluginConfig) {
         averageBitrateCounter = AMGAverageBitrateCounter()
         entryId = populateEntryId(mediaConfig, pluginConfig)
         sessionId = "" //if (player != null && player?.sessionId != null) player?.sessionId else ""
         resetValues()
     }
 
-    private fun populateEntryId(mediaConfig: PKMediaConfig, pluginConfig: AMGAnalyticsConfig): String? {
+    private fun populateEntryId(mediaConfig: PKMediaConfig, pluginConfig: AMGAnalyticsPluginConfig): String? {
         var kavaEntryId: String? = null
         if (pluginConfig.entryId != null) {
             kavaEntryId = pluginConfig.entryId
@@ -133,9 +133,9 @@ class AMGDataHandler(context: Context, player: Player?) {
      */
     fun collectData(event: KavaEvents, mediaEntryType: MediaEntryType, isLiveMedia: Boolean, playheadUpdated: PlayheadUpdated?): Map<String, String?>? {
         isLive = isLiveMedia
+        var playerPosition = Consts.POSITION_UNSET.toLong()
+        var playerDuration = Consts.TIME_UNSET
         if (!onApplicationPaused) {
-            var playerPosition = Consts.POSITION_UNSET.toLong()
-            var playerDuration = Consts.TIME_UNSET
             if (playheadUpdated != null) {
                 playerPosition = playheadUpdated.position
                 playerDuration = playheadUpdated.duration
@@ -143,80 +143,81 @@ class AMGDataHandler(context: Context, player: Player?) {
             playbackType = getPlaybackType(mediaEntryType, playerPosition, playerDuration)
         }
         val params: HashMap<String, String?> = HashMap()
-        params["service"] = "analytics"
-        params["action"] = "trackEvent"
-        params["eventType"] = Integer.toString(event.value)
-        params["partnerId"] = partnerId
+//        params["service"] = "analytics"
+//        params["action"] = "trackEvent"
+//        params["eventType"] = Integer.toString(event.value)
+        params["pid"] = partnerId
         params["eid"] = entryId
         params["sid"] = sessionId
-        params["eventIndex"] = Integer.toString(eventIndex)
-        params["referrer"] = referrer
-        params["deliveryType"] = deliveryType
-        params["playbackType"] = playbackType!!.name.toLowerCase(Locale.ROOT)
-        params["clientVer"] = PlayKitManager.CLIENT_TAG
+//        params["eventIndex"] = Integer.toString(eventIndex)
+        params["rurl"] = referrer
+//        params["deliveryType"] = deliveryType
+//        params["playbackType"] = playbackType!!.name.toLowerCase(Locale.ROOT)
+//        params["clientVer"] = PlayKitManager.CLIENT_TAG
         params["position"] = getPlayerPosition(mediaEntryType, playheadUpdated)
-        params["application"] = context?.packageName
+//        params["application"] = context?.packageName
+        params["den"] = "$playerDuration"
         params["dhm"] = heatMap.report()
         params["dpl"] = heatMap.uniquePlayTime().toString()
         params["dcn"] = heatMap.totalPlayTime().toString()
-        params["playbackSpeed"] = lastKnownPlaybackSpeed.toString()
-        if (currentCaptionLanguage != null) {
-            params["caption"] = currentCaptionLanguage
-        }
-        if (sessionStartTime != null) {
-            params["sessionStartTime"] = sessionStartTime
-        }
-        when (event) {
-            KavaEvents.VIEW -> {
-                addViewParams(params)
-                addBufferParams(params)
-            }
-            KavaEvents.IMPRESSION -> {
-            }
-            KavaEvents.PLAY -> {
-                params["actualBitrate"] = java.lang.Long.toString(actualBitrate / KB_MULTIPLIER)
-                val joinTime = (System.currentTimeMillis() - joinTimeStartTimestamp) / Consts.MILLISECONDS_MULTIPLIER_FLOAT
-                params["joinTime"] = java.lang.Float.toString(joinTime)
-                val canPlay = (canPlayTimestamp - loadedMetaDataTimestamp) / Consts.MILLISECONDS_MULTIPLIER_FLOAT
-                params["canPlay"] = java.lang.Float.toString(canPlay)
-                params["networkConnectionType"] = Utils.getNetworkClass(context)
-                averageBitrateCounter?.resumeCounting()
-                addBufferParams(params)
-            }
-            KavaEvents.RESUME -> {
-                params["actualBitrate"] = java.lang.Long.toString(actualBitrate / KB_MULTIPLIER)
-                averageBitrateCounter?.resumeCounting()
-                addBufferParams(params)
-            }
-            KavaEvents.SEEK -> params["targetPosition"] = java.lang.Float.toString(targetSeekPositionInSeconds / Consts.MILLISECONDS_MULTIPLIER_FLOAT)
-            KavaEvents.SOURCE_SELECTED, KavaEvents.FLAVOR_SWITCHED -> params["actualBitrate"] = java.lang.Long.toString(actualBitrate / KB_MULTIPLIER)
-            KavaEvents.AUDIO_SELECTED -> params["language"] = currentAudioLanguage
-            KavaEvents.CAPTIONS -> {
-            }
-            KavaEvents.SPEED -> {
-            }
-            KavaEvents.ERROR -> {
-                if (errorCode != -1) {
-                    params["errorCode"] = Integer.toString(errorCode)
-                }
-                if (errorDetails != null) {
-                    params["errorDetails"] = errorDetails
-                }
-                if (errorPosition != null) {
-                    params["errorPosition"] = errorPosition.toString()
-                }
-                errorCode = -1
-                errorDetails = null
-                errorPosition = null
-            }
-            KavaEvents.PAUSE -> {
-                //When player was paused we should update average bitrate value,
-                //because we are interested in average bitrate only during active playback.
-                averageBitrateCounter?.pauseCounting()
-                // each time we stop counting view timer we should reset the sessionStartTimer.
-                sessionStartTime = null
-            }
-        }
+//        params["playbackSpeed"] = lastKnownPlaybackSpeed.toString()
+//        if (currentCaptionLanguage != null) {
+//            params["caption"] = currentCaptionLanguage
+//        }
+//        if (sessionStartTime != null) {
+//            params["sessionStartTime"] = sessionStartTime
+//        }
+//        when (event) {
+//            KavaEvents.VIEW -> {
+//                addViewParams(params)
+//                addBufferParams(params)
+//            }
+//            KavaEvents.IMPRESSION -> {
+//            }
+//            KavaEvents.PLAY -> {
+//                params["actualBitrate"] = java.lang.Long.toString(actualBitrate / KB_MULTIPLIER)
+//                val joinTime = (System.currentTimeMillis() - joinTimeStartTimestamp) / Consts.MILLISECONDS_MULTIPLIER_FLOAT
+//                params["joinTime"] = java.lang.Float.toString(joinTime)
+//                val canPlay = (canPlayTimestamp - loadedMetaDataTimestamp) / Consts.MILLISECONDS_MULTIPLIER_FLOAT
+//                params["canPlay"] = java.lang.Float.toString(canPlay)
+//                params["networkConnectionType"] = Utils.getNetworkClass(context)
+//                averageBitrateCounter?.resumeCounting()
+//                addBufferParams(params)
+//            }
+//            KavaEvents.RESUME -> {
+//                params["actualBitrate"] = java.lang.Long.toString(actualBitrate / KB_MULTIPLIER)
+//                averageBitrateCounter?.resumeCounting()
+//                addBufferParams(params)
+//            }
+//            KavaEvents.SEEK -> params["targetPosition"] = java.lang.Float.toString(targetSeekPositionInSeconds / Consts.MILLISECONDS_MULTIPLIER_FLOAT)
+//            KavaEvents.SOURCE_SELECTED, KavaEvents.FLAVOR_SWITCHED -> params["actualBitrate"] = java.lang.Long.toString(actualBitrate / KB_MULTIPLIER)
+//            KavaEvents.AUDIO_SELECTED -> params["language"] = currentAudioLanguage
+//            KavaEvents.CAPTIONS -> {
+//            }
+//            KavaEvents.SPEED -> {
+//            }
+//            KavaEvents.ERROR -> {
+//                if (errorCode != -1) {
+//                    params["errorCode"] = Integer.toString(errorCode)
+//                }
+//                if (errorDetails != null) {
+//                    params["errorDetails"] = errorDetails
+//                }
+//                if (errorPosition != null) {
+//                    params["errorPosition"] = errorPosition.toString()
+//                }
+//                errorCode = -1
+//                errorDetails = null
+//                errorPosition = null
+//            }
+//            KavaEvents.PAUSE -> {
+//                //When player was paused we should update average bitrate value,
+//                //because we are interested in average bitrate only during active playback.
+//                averageBitrateCounter?.pauseCounting()
+//                // each time we stop counting view timer we should reset the sessionStartTimer.
+//                sessionStartTime = null
+//            }
+//        }
         optionalParams?.getParams()?.let{
             params.putAll(it)
         }

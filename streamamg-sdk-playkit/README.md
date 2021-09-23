@@ -35,16 +35,17 @@ The class a developer would interact with is simply called 'AMGPlayKit', this si
 To instantiate an instance of AMGPlaykit, the following constructor should be called:
 
 ``` Kotlin
-constructor(context: Context, partnerID: Int)
+constructor(context: Context, partnerID: Int, analytics: AMGAnalyticsConfig? = null)
 ```
 for example :
 
 ``` Kotlin
-let playKit = AMGPlayKit(context, 1111111)
+val analyticsConfig = AMGAnalyticsConfig(youboraAccountCode: "youbora_account_code") // Optional
+val playKit = AMGPlayKit(context, 1111111, analyticsConfig)
 ```
 You can also initialise the PlayKit without a PartnerID
 ``` Kotlin
-constructor(context: Context)
+constructor(context: Context, analytics: AMGAnalyticsConfig? = null)
 ```
 But you will be required to send the PartnerID separately to play media.
 
@@ -81,6 +82,14 @@ app:use_standard_controls="false" //true will enable the standard overlayed UI c
 app:partner_id="@integer/partner_id" //an integer defining the partner ID to be used in the player
 ```
 
+The following setup code should be carried out after connecting to the player in code:
+
+Create the player:
+
+``` Kotlin
+playKit.createPlayer(analytics: AMGAnalyticsConfig? = null)
+```
+
 ### Managing the app lifecycle
 
 To correctly serve media and adverts, certain parts of the lifecycle of the app should be passed through to the SDK:
@@ -97,6 +106,23 @@ And resuming the player should happen when the fragment or activity is resumed (
     playKit.playerResume()
 ```
 
+### Adding an analytics service
+
+Currently Playkit supports 2 anayltics services, StreamAMG's own Media Player analyics service, and Youbora analytics.
+To use either service, you should instantiate the player with a configuration model:
+
+``` Kotlin
+constructor(youboraAccountCode: String)
+```
+
+or 
+
+``` Kotlin
+constructor(amgAnalyticsPartnerID: Int)
+```
+
+If you do not pass an analytics configuration during initialisation, no analytics service will be used
+
 ### Manually updating the PartnerID
 
 PartnerID can be added or changed programatically with the function
@@ -105,16 +131,6 @@ public fun addPartnerID(partnerId: Int)
 ```
 
 It should be noted that you cam also send a new PartnerID with any new media sent.
-
-### Media Analytics
-
-Media analytics are automatically included when PlayKit is instantiated.
-
-All analytics data is currently sent to a standard URL, if you require them to be sent elsewhere, you can use the function
-
-``` Kotlin
-public fun setAnalyticsURL(url: String)
-```
 
 ## Standard Media controls
 
@@ -128,11 +144,9 @@ playKit.addStandardControl()
 
 This adds a UI that appears when the user touches the Play Kit window, and has the following characteristics:
 
-- Colour scheme is the standard colours for the components (white and blue)
 - Scrub bar is positioned at the bottom of the player
 - The play state is NOT toggled when the user reveals the controls
 - The controls disappear after 5 seconds of no interaction
-- Track times and current times are not shown
 - Skip forward and backward buttons skip 5 seconds
 
 You can control some of these defaults programatically:
@@ -158,7 +172,7 @@ playKit.skipTime(_ duration: Int) // in milliseconds (eg, 5250)
 It is also possible to configure these settings by using the AMGControlBuilder class.
 
 ``` Kotlin
-let controls = AMGControlBuilder()
+val controls = AMGControlBuilder()
     .setHideDelay(2500) // sets the delay of inactivity to 2.5 seconds (2500 Milliseconds) before hiding the controls
     .setTrackTimeShowing(true) // Shows the start and end times, configured depending on the visability of the current time
     .build()
@@ -197,9 +211,9 @@ Hide the 'fullscreen' button
    .hideFullScreenButton()
    ```
 
-Hide the 'fullscreen' button when the player is in full screen
+Hide the 'minimise' button when the player is in full screen
    ``` Kotlin
-   .hideFullScreenButtonOnFullScreen()
+   .hideMinimiseButton()
    ```
 
 Specify the image to use for the play button
@@ -227,31 +241,19 @@ Specify the image to use for the skip backward button
    .skipBackwardImage(image: Int)
    ```
 
-Specify the image to use for the 'is live'
-   ``` Kotlin
-   .isLiveImage(image: Int)
-   ```
-
-Specify the image to use for the logo / watermark
-   ``` Kotlin
-   .logoImage(image: Int)
-   ```
-
-The following options are available, but not yet implemented:
-
-Toggle whether the current media toggles play state when the controls are made visible
+Set the colour of the scrub bar 'tracked' time to a colour resouce (eg R.color.amg_blue)
 ``` Kotlin
-.setFadeInToggleOn(isOn: Bool)
+.scrubBarColour(colour: Int)
 ```
 
-Set the duration of the fade in animation of the controls
+Set the colour of the live scrub bar 'tracked' time to a colour resouce (eg R.color.amg_blue)
 ``` Kotlin
-.setFadeInTime(time: Int)
+.scrubBarLiveColour(colour: Int)
 ```
 
-Set the duration of the fade out animation of the controls
+Set the colour of the VOD scrub bar 'tracked' time to a colour resouce (eg R.color.amg_blue)
 ``` Kotlin
-.setFadeOutTime(time: Int)
+.scrubBarVODColour(colour: Int)
 ```
 
 
@@ -461,7 +463,8 @@ There are only 5 required elements when requesting media to be played:
 * Media URL
 * Entry ID
 * KS (where needed)
-* Media Type
+
+you can also pass a 'mediaType' element to force the player into 'live' mode if required - see below
 
 Please note it is no longer required to pass the UIConfig parameter to PlayKit.
 
@@ -472,7 +475,7 @@ public fun loadMedia(serverUrl: String, entryID: String, ks: String? = null, med
 ```
 for example:
 ``` Kotlin
-playKit.loadMedia("https://mymediaserver.com", "0_myEntryID", "VALID_KS_PROVIDED_BY_STREAM_AMG", AMGMediaType.Live)
+playKit.loadMedia("https://mymediaserver.com", "0_myEntryID", "VALID_KS_PROVIDED_BY_STREAM_AMG")
 ```
 
 Or with a Partner ID
@@ -481,10 +484,22 @@ public fun loadMedia(serverUrl: String, partnerID: Int, entryID: String, ks: Str
 ```
 for example:
 ``` Kotlin
-playKit.loadMedia("https://mymediaserver.com", 111111111, "0_myEntryID", "VALID_KS_PROVIDED_BY_STREAM_AMG", AMGMediaType.Live)
+playKit.loadMedia("https://mymediaserver.com", 111111111, "0_myEntryID", "VALID_KS_PROVIDED_BY_STREAM_AMG")
 ```
 
 If the media does not require a KSession token, this should be left as null
+
+### Forcing live mode
+
+When sending media to the player, the mediaType defaults to VOD and will automatically attempt to determine if the media is live or VOD, this will affect the scrub bar colours (if they are different) and the layout of the scrub bar.
+
+To force the player into 'live' mode, 'mediaType: .Live' should be passed to the player when sending media
+
+``` Kotlin
+playKit.loadMedia("https://mymediaserver.com", 111111111, "0_myEntryID", "VALID_KS_PROVIDED_BY_STREAM_AMG", AMGMediaType.Live)
+```
+
+Currently the player is either 'Live' or 'VOD'
 
 ### Casting URL
 
@@ -530,6 +545,13 @@ amgPlayKit?.setSpoilerFree(enabled: Boolean) // true = spoiler free mode on, fal
 # Change Log
 
 All notable changes to this project will be documented in this section.
+
+### 0.3
+- Added Youbora analytics and the ability to choose analytics services
+- Added ability to change scrub bar colours
+- Automatically detect live streams
+- Tidied Custom Control builder
+- Small bug fixes
 
 ### 0.2 PlayKit bug fixes
 

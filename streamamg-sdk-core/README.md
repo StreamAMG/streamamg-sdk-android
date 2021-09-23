@@ -168,4 +168,8 @@ Change Log:
 
 All notable changes to this project will be documented in this section.
 
+### 0.3 - Updated batch job service to include completion listener and convenience method to clear jobs after processing
+
+### 0.2 -> 0.2.1 - No changes to Core
+
 ### 0.1 - Initial build

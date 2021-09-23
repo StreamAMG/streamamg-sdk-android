@@ -161,6 +161,14 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
                 fullScreenButton.setImageResource(it.fullScreenImage)
             }
 
+            if (it.scrubBarLiveColour > 0) {
+                scrubBarLiveColour = it.scrubBarLiveColour
+            }
+
+            if (it.scrubBarVODColour > 0) {
+                scrubBarVODColour = it.scrubBarVODColour
+            }
+
             liveButton.setOnClickListener {
                 player?.goLive()
             }

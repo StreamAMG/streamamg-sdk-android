@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.gson.annotations.SerializedName
 import com.streamamg.streamapi_core.models.BaseStreamResponse
 import com.streamamg.streamapi_streamplay.services.logErrorSP
+import com.streamamg.streamapi_streamplay.services.logSP
 import kotlin.collections.ArrayList
 
 /**
@@ -20,7 +21,7 @@ data class StreamPlayResponse (
          * Core should be configured to have logging enabled
          */
         fun logFixtures(){
-                logErrorSP("SP --------------------------------------")
+                logSP("SP --------------------------------------")
                 for (fixture: FixturesModel in fixtures){
                         Log.d("StreamPlay", fixture.name ?: "")
                 }

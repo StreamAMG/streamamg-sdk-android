@@ -2,7 +2,7 @@ package com.streamamg.amg_playkit.analytics
 
 import java.util.*
 
-class AMGOptionalParameters(config: AMGAnalyticsConfig) {
+class AMGOptionalParameters(config: AMGAnalyticsPluginConfig) {
     private var optionalParams: HashMap<String, String>? = null
 
     init {

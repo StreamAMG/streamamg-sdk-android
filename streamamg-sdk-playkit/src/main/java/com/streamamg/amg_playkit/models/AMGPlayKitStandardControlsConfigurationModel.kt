@@ -52,6 +52,8 @@ class AMGControlBuilder {
     private var skipBackwardImage: Int = 0
     private var fullScreenImage: Int = 0
     private var minimiseImage: Int = 0
+    private var scrubBarLiveColour: Int = 0
+    private var scrubBarVODColour: Int = 0
 
 
     /**
@@ -174,7 +176,7 @@ class AMGControlBuilder {
         skipBackwardTime = time
     }
 
-    public fun hideFullScreenButtonOnFullScreen() = apply {
+    public fun hideMinimiseButton() = apply {
         hideFullscreenOnFS = true
     }
 
@@ -182,11 +184,24 @@ class AMGControlBuilder {
         hideFullscreen = true
     }
 
+    public fun scrubBarColour(colour: Int) = apply {
+        scrubBarLiveColour = colour
+        scrubBarVODColour = colour
+    }
+
+    public fun scrubBarLiveColour(colour: Int) = apply {
+        scrubBarLiveColour = colour
+    }
+
+    public fun scrubBarVODColour(colour: Int) = apply {
+        scrubBarVODColour = colour
+    }
+
     /**
     Returns a complete and valid AMGPlayKitStandardControlsConfigurationModel
      */
     fun build(): AMGPlayKitStandardControlsConfigurationModel {
-        return AMGPlayKitStandardControlsConfigurationModel(fadeInTogglesPausePlay, fadeInTime, fadeOutTime, fadeOutAfter, slideBarPosition, trackTimeShowing, currentTimeShowing, skipForwardTime, skipBackwardTime, hideFullscreen, hideFullscreenOnFS, isLiveImage, logoImage, playImage, pauseImage, skipForwardImage, skipBackwardImage, fullScreenImage, minimiseImage)
+        return AMGPlayKitStandardControlsConfigurationModel(fadeInTogglesPausePlay, fadeInTime, fadeOutTime, fadeOutAfter, slideBarPosition, trackTimeShowing, currentTimeShowing, skipForwardTime, skipBackwardTime, hideFullscreen, hideFullscreenOnFS, isLiveImage, logoImage, playImage, pauseImage, skipForwardImage, skipBackwardImage, fullScreenImage, minimiseImage, scrubBarLiveColour, scrubBarVODColour)
     }
 
     //
