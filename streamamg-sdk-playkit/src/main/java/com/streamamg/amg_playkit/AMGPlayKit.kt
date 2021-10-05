@@ -194,7 +194,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
             }
 
             player.addListener(this, PlayerEvent.durationChanged) { event ->
-                stopEventOccurred()
+       //         stopEventOccurred()
                 changeDuration(event.duration)
                 currentPlayerState = AMGPlayerState.Loaded
                 listener?.durationChangeOccurred(AMGPlayKitState(AMGPlayerState.Loaded, duration = event.duration))
@@ -534,7 +534,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
     }
 
     override fun goLive() {
-        player?.seekTo(player?.duration ?: 0)
+        player?.seekTo(Long.MAX_VALUE)
     }
 
     /**

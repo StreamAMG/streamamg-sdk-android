@@ -11,6 +11,8 @@ android {
         targetSdkVersion 30
         versionCode SDK_VERSION_CODE
         versionName SDK_VERSION_NAME
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments clearPackageData: 'true'
     }
 
     buildTypes {
@@ -31,6 +33,10 @@ android {
             outputFileName = "${project.name}-${variant.name}-${defaultConfig.versionName}.aar"
         }
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+        unitTests.includeAndroidResources = true
+    }
 }
 
 dependencies {
@@ -44,5 +50,11 @@ dependencies {
 
     implementation "androidx.security:security-crypto:$androidx_crypto_version"
 
-    testImplementation "junit:junit:$junit_version"
+    testImplementation "androidx.test.ext:junit:1.1.1"
+//    testImplementation "androidx.test.ext:truth:1.4.0"
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    androidTestImplementation 'androidx.test:core:1.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
 }

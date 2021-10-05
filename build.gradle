@@ -16,7 +16,7 @@ plugins {
 }
 // Versions of the library modules are matched (eg 1.0 core goes with 1.0 cloudmatrix) to prevent dependency issues
 ext.SDK_VERSION_CODE = 3
-ext.SDK_VERSION_NAME = "0.3"
+ext.SDK_VERSION_NAME = "0.3.1"
 
 publishing {
     publications {
@@ -61,11 +61,11 @@ publishing {
                 def dependencyNode = dependenciesNode.appendNode('dependency')
                 dependencyNode.appendNode('groupId', 'com.kaltura.player')
                 dependencyNode.appendNode('artifactId', 'tvplayer')
-                dependencyNode.appendNode('version', '4.12.0')
+                dependencyNode.appendNode('version', '4.16.0')
                 def dependencyNode2 = dependenciesNode.appendNode('dependency')
                 dependencyNode2.appendNode('groupId', 'com.kaltura.playkit')
                 dependencyNode2.appendNode('artifactId', 'imaplugin')
-                dependencyNode2.appendNode('version', '4.12.0')
+                dependencyNode2.appendNode('version', '4.15.0')
                 def dependencyNode3 = dependenciesNode.appendNode('dependency')
                 dependencyNode3.appendNode('groupId', 'androidx.appcompat')
                 dependencyNode3.appendNode('artifactId', 'appcompat')
@@ -78,6 +78,18 @@ publishing {
                 dependencyNode5.appendNode('groupId', 'com.kaltura.playkit')
                 dependencyNode5.appendNode('artifactId', 'youboraplugin')
                 dependencyNode5.appendNode('version', '4.16.0')
+                def dependencyNode6 = dependenciesNode.appendNode('dependency')
+                dependencyNode6.appendNode('groupId', 'com.squareup.retrofit2')
+                dependencyNode6.appendNode('artifactId', 'retrofit')
+                dependencyNode6.appendNode('version', '2.9.0')
+                def dependencyNode7 = dependenciesNode.appendNode('dependency')
+                dependencyNode7.appendNode('groupId', 'com.squareup.retrofit2')
+                dependencyNode7.appendNode('artifactId', 'converter-gson')
+                dependencyNode7.appendNode('version', '2.9.0')
+                def dependencyNode8 = dependenciesNode.appendNode('dependency')
+                dependencyNode8.appendNode('groupId', 'com.google.code.gson')
+                dependencyNode8.appendNode('artifactId', 'gson')
+                dependencyNode8.appendNode('version', '2.8.6')
             }
         }
     }

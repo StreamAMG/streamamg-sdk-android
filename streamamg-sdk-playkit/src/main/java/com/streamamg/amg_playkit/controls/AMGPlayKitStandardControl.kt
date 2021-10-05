@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.util.AttributeSet
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -300,6 +301,7 @@ player?.skipForward()
     }
 
     override fun changePlayHead(position: Long) {
+ //       Log.d("AMGISLIVE", "Playhead: $position - duration: $duration - scrubmax: ${scrubBar.max}")
         scrubBar.progress = (position / 1000).toInt()
         val timeRemaining = duration - position
         startTime.text = "${timeForDisplay(position)} / ${timeForDisplay(timeRemaining)}"
@@ -311,7 +313,7 @@ player?.skipForward()
         val lpb = LayoutParams(0, MATCH_PARENT, 1 - percentage)
         bottomScrubBarBlank.layoutParams = lpb
 
-        if (position < duration - 1000) {
+        if (scrubBar.progress < scrubBar.max - 50) {
             liveButton.setText(R.string.go_live)
         } else {
             liveButton.setText(R.string.live)
@@ -395,7 +397,7 @@ player?.skipForward()
             mainView.visibility = VISIBLE
             bottomScrubBar.visibility = GONE
         } else {
-            mainView.visibility = GONE
+            mainView.visibility = INVISIBLE
             if (bottomTrackShouldShow) {
                 bottomScrubBar.visibility = VISIBLE
             }
