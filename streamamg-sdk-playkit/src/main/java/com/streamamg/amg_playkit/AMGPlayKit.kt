@@ -610,6 +610,27 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         return AMGPlayKitPlayState.idle
     }
 
+    private fun createMedia(entryID: String, url: String): PKMediaEntry{
+        val media = PKMediaEntry()
+        media.id = entryID
+        var sources = PKMediaSource()
+        sources.id = entryID
+        sources.url = url
+        sources.mediaFormat = PKMediaFormat.hls;
+        media.sources = listOf(sources)
+        media.mediaType = PKMediaEntry.MediaEntryType.Vod
+        return media
+    }
+
+    fun loadMedia(entryID: String, url: String){
+        var mediaConfig = PKMediaConfig()
+        mediaConfig.mediaEntry = createMedia(entryID,url)
+        player?.prepare(mediaConfig)
+        controlsView.setMediaType(AMGMediaType.VOD)
+        controlsView.setIsVOD()
+        player?.play()
+    }
+
 
     private fun hideControls() {
         print("Hiding controls")

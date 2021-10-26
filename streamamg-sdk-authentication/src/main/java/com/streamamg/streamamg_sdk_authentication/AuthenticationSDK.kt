@@ -1,7 +1,9 @@
 package com.streamamg.streamamg_sdk_authentication
 
 import com.streamamg.streamamg_sdk_authentication.api.LoginResponse
-import com.streamamg.streamamg_sdk_authentication.model.*
+import com.streamamg.streamamg_sdk_authentication.model.GetKeySessionResult
+import com.streamamg.streamamg_sdk_authentication.model.LoginResult
+import com.streamamg.streamamg_sdk_authentication.model.LogoutResult
 import com.streamamg.streamapi_core.StreamAMGSDK
 
 interface AuthenticationSDK {
