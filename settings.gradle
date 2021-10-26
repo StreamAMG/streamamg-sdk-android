@@ -2,5 +2,7 @@ include ':streamamg-sdk-authentication'
 include ':streamamg-sdk-cloudmatrix'
 include ':streamamg-sdk-core'
 include ':streamamg-sdk-playkit'
+include ':streamamg-sdk-playkit2go'
+include ':streamamg-sdk-purchases'
 include ':streamamg-sdk-streamplay'
 rootProject.name = "streamamg-sdk"
