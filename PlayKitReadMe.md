@@ -1,17 +1,19 @@
 #  AMG PlayKit Library
 
-The AMG PlayKit library is a simple to use wrapper around the Kaltura PlayKit suite. It provides a single UIView (AMGPlayKit) with which to play and interact with standard AMG provided media streams, whilst automatically taking care of media analytics, Google IMA (media advertising), basic casting and basic player UI.
+The AMG PlayKit library is a simple to use wrapper around the Kaltura PlayKit suite. It provides a single Android View (AMGPlayKit) with which to play and interact with standard AMG provided media streams, whilst automatically taking care of media analytics, Google IMA (media advertising), basic casting and basic player UI.
 
 ## Installing AMG PlayKit
 
+Add the jitpack repository and the Youbora repository to your project level build.gradle
 
-Add the jitpack repository to your project level build.gradle
+The Youbora repository is currently required even if you are not implementing Youbora analytics. It is hoped this will be resolved in a future releasae.
 
 ```
 allprojects {
        repositories {
            ....
            maven { url "https://jitpack.io" }
+           maven { url  "https://npaw.jfrog.io/artifactory/youbora/" }
        }
   }
 ```
@@ -122,6 +124,21 @@ constructor(amgAnalyticsPartnerID: Int)
 ```
 
 If you do not pass an analytics configuration during initialisation, no analytics service will be used
+
+Youbora analytics can handle up to 20 extra static parameters being passed to it. To do this, you should use the YouboraService builder class:
+
+``` Kotlin
+        var analyticsConfig = AMGAnalyticsConfig.YouboraService()
+            .accountCode("streamamgdev") // REQUIRED
+            .userName("A USER CODE") // Should be non identifying
+            .parameter(1, "Static Parameter Value 1")
+            .parameter(2, "Static Parameter Value 2")
+            .parameter(3, "Static Parameter Value 3") // through to 20
+            .build()
+        amgPlayKit.createPlayer(requireContext(), analyticsConfig)
+```
+
+If you do not pass an account code in this instance, the configuration file will not work
 
 ### Manually updating the PartnerID
 
@@ -463,6 +480,7 @@ There are only 5 required elements when requesting media to be played:
 * Media URL
 * Entry ID
 * KS (where needed)
+* Title (For Youbora analytics)
 
 you can also pass a 'mediaType' element to force the player into 'live' mode if required - see below
 
@@ -471,20 +489,20 @@ Please note it is no longer required to pass the UIConfig parameter to PlayKit.
 If you have provided the Partner ID to the PlayKit already, you do not need to pass this with each media request:
 
 ``` Kotlin
-public fun loadMedia(serverUrl: String, entryID: String, ks: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD)
+public fun loadMedia(serverUrl: String, entryID: String, ks: String? = null, title: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD)
 ```
 for example:
 ``` Kotlin
-playKit.loadMedia("https://mymediaserver.com", "0_myEntryID", "VALID_KS_PROVIDED_BY_STREAM_AMG")
+playKit.loadMedia("https://mymediaserver.com", "0_myEntryID", "VALID_KS_PROVIDED_BY_STREAM_AMG", title: String? = null)
 ```
 
 Or with a Partner ID
 ``` Kotlin
-public fun loadMedia(serverUrl: String, partnerID: Int, entryID: String, ks: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD)
+public fun loadMedia(serverUrl: String, partnerID: Int, entryID: String, ks: String? = null, title: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD)
 ```
 for example:
 ``` Kotlin
-playKit.loadMedia("https://mymediaserver.com", 111111111, "0_myEntryID", "VALID_KS_PROVIDED_BY_STREAM_AMG")
+playKit.loadMedia("https://mymediaserver.com", 111111111, "0_myEntryID", "VALID_KS_PROVIDED_BY_STREAM_AMG", "AMG Demo Video")
 ```
 
 If the media does not require a KSession token, this should be left as null
@@ -545,6 +563,10 @@ amgPlayKit?.setSpoilerFree(enabled: Boolean) // true = spoiler free mode on, fal
 # Change Log
 
 All notable changes to this project will be documented in this section.
+
+### 0.4 
+- Minor changes for PlayKit2Go integration
+- Added Youbora parameters
 
 ### 0.3
 - Added Youbora analytics and the ability to choose analytics services

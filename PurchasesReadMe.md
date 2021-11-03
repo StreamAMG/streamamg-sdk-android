@@ -30,7 +30,7 @@ In your app level build.gradle file, add the dependencies required
     implementation "com.github.StreamAMG.streamamg-sdk-android:streamamg-sdk-purchases:(version number)"
 ```  
 
-Sync your Gradle files, and the AMGPlayKit should import and be available for use.
+Sync your Gradle files, and the Purchases module should be available for use.
 
 API Overview
 ============
@@ -163,6 +163,6 @@ Change Log:
 
 All notable changes to this project will be documented in this section.
 
-### 0.10 - Purchases Module added to SDK
+### 0.4 - Purchases Module added to SDK
 
-### 0.1 -> 0.9 - No Purchases Module
+### 0.1 -> 0.3 - No Purchases Module

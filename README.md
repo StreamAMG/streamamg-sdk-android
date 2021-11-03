@@ -6,23 +6,32 @@ There are currently four modules available, each of which perform a particular t
 
 Core:
   The Core module provides networking, logging and batch processing functionality to the other modules. It is a mandatory requirement of StreamSDK that Core is included in your project
-  [Full details](streamamg-sdk-core/README.md)
+  [Full details](CoreReadMe.md)
 
 CloudMatrix:
   CloudMatrix provides a historical reference of video, audio and other media types for specific events.
-  [Full details](streamamg-sdk-cloudmatrix/README.md)
+  [Full details](CloudMatrixReadMe.md)
 
 StreamPlay:
   StreamPlay contains information regarding upcoming events
-  [Full details](streamamg-sdk-streamplay/README.md)
+  [Full details](StreamPlayReadMe.md)
 
 Authentication:
   Covers logging in, getting a token, KSession, and logging out
-  [Full details](streamamg-sdk-authentication/README.md)
+  [Full details](AuthenticationReadMe.md)
 
 PlayKit:
   PlayKit provides video playback for Stream AMG clients
-  [Full details](streamamg-sdk-playkit/README.md)
+  [Full details](PlayKitReadMe.md)
+
+ PlayKit2Go:
+   Download and playback media for PlayKit
+   [Full details](PlayKit2GoReadMe.md)
+
+Purchases:
+   Integrate IAPs into the StreamAMG CloudPay backend
+   [Full details](PurchasesReadMe.md)
+
 
   To use the modules the following steps should be followed:
 
@@ -47,6 +56,8 @@ In your app level build.gradle file, add the dependencies required - you MUST ad
     implementation "com.github.StreamAMG.streamamg-sdk-android:streamamg-sdk-streamplay:(version number)"
     implementation "com.github.StreamAMG.streamamg-sdk-android:streamamg-sdk-authentication:(version number)"
     implementation "com.github.StreamAMG.streamamg-sdk-android:streamamg-sdk-playkit:(version number)"
+    implementation "com.github.StreamAMG.streamamg-sdk-android:streamamg-sdk-playkit2go:(version number)"
+    implementation "com.github.StreamAMG.streamamg-sdk-android:streamamg-sdk-purchases:(version number)"
   ```  
 
 alternatively, to install all SDK elements, use the following line:
@@ -61,6 +72,8 @@ Change Log:
 ===========
 
 All notable changes to this project will be documented in this section.
+
+### 0.4 - Purchases and PlayKit2Go SDKs added
 
 ### 0.3 - Updates to Core and major Playkit feature enhancements
 

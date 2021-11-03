@@ -12,6 +12,7 @@ class MediaItem(
     var partnerID: Int,
     var entryID: String,
     var ks: String?,
+    var title: String?,
     var mediaType: AMGMediaType = AMGMediaType.VOD
 ) {
     var mediaConfig: PKMediaConfig = PKMediaConfig()
@@ -19,6 +20,9 @@ class MediaItem(
     init {
         val media = PKMediaEntry()
         media.id = entryID
+        if (title != null) {
+            media.name = title
+        }
         var sources = PKMediaSource()
         sources.id = entryID
         sources.url =

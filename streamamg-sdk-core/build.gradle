@@ -48,10 +48,9 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation "com.google.code.gson:gson:$gson_version"
 
-    implementation "androidx.security:security-crypto:$androidx_crypto_version"
+ //   implementation "androidx.security:security-crypto:$androidx_crypto_version"
 
     testImplementation "androidx.test.ext:junit:1.1.1"
-//    testImplementation "androidx.test.ext:truth:1.4.0"
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     androidTestImplementation 'androidx.test:core:1.2.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

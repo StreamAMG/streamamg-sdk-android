@@ -25,6 +25,7 @@ import com.squareup.picasso.Picasso
 import com.streamamg.amg_playkit.analytics.AMGAnalyticsConfig
 import com.streamamg.amg_playkit.analytics.AMGAnalyticsPluginConfig
 import com.streamamg.amg_playkit.analytics.AMGAnalyticsPlugin
+import com.streamamg.amg_playkit.analytics.YouboraParameter
 import com.streamamg.amg_playkit.constants.*
 import com.streamamg.amg_playkit.controls.AMGPlayKitStandardControl
 import com.streamamg.amg_playkit.interfaces.AMGControlInterface
@@ -399,17 +400,17 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         }
     }
 
-    fun loadMedia(serverUrl: String, entryID: String, ks: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD) {
+    fun loadMedia(serverUrl: String, entryID: String, ks: String? = null, title: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD) {
         if (partnerId > 0) {
-            loadMedia(MediaItem(serverUrl, partnerId, entryID, ks, mediaType), mediaType)
+            loadMedia(MediaItem(serverUrl, partnerId, entryID, ks, title, mediaType), mediaType)
         } else {
             print("Please provide a PartnerID with the request, add a default with 'addPartnerID(partnerID:Int)' or set a default in the initialiser")
         }
     }
 
-    fun loadMedia(serverUrl: String, partnerID: Int, entryID: String, ks: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD) {
+    fun loadMedia(serverUrl: String, partnerID: Int, entryID: String, ks: String? = null, title: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD) {
         partnerId = partnerID
-        loadMedia(MediaItem(serverUrl, partnerID, entryID, ks, mediaType), mediaType)
+        loadMedia(MediaItem(serverUrl, partnerID, entryID, ks, title, mediaType), mediaType)
     }
 
 
@@ -442,6 +443,13 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
                 PlayKitManager.registerPlugins(context, YouboraPlugin.factory)
                 val youboraConfig = JsonObject()
                 youboraConfig.addProperty("accountCode", analyticsConfiguration.accountCode)
+                analyticsConfiguration.userName?.let {name ->
+                    youboraConfig.addProperty("username", name)
+                }
+
+                if (analyticsConfiguration.youboraParameters.isNotEmpty()) {
+                    youboraConfig.add("extraParams", youboraParameters(analyticsConfiguration.youboraParameters))
+                }
                 pluginConfigs.setPluginConfig(YouboraPlugin.factory.name, youboraConfig)
 
 
@@ -456,6 +464,14 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 
         pluginConfigs.setPluginConfig(IMAPlugin.factory.name, getIMAPluginConfig(""))
         return pluginConfigs
+    }
+
+    private fun youboraParameters(params: ArrayList<YouboraParameter>): JsonObject {
+        val parametersConfig = JsonObject()
+        for (param in params){
+            parametersConfig.addProperty("param${param.id}", param.value)
+        }
+        return parametersConfig
     }
 
     private fun getIMAPluginConfig(adTagUrl: String): IMAConfig? {
@@ -610,9 +626,12 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         return AMGPlayKitPlayState.idle
     }
 
-    private fun createMedia(entryID: String, url: String): PKMediaEntry{
+    private fun createMedia(entryID: String, url: String, title: String?): PKMediaEntry{
         val media = PKMediaEntry()
         media.id = entryID
+        if (title != null) {
+            media.name = title
+        }
         var sources = PKMediaSource()
         sources.id = entryID
         sources.url = url
@@ -622,9 +641,9 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         return media
     }
 
-    fun loadMedia(entryID: String, url: String){
+    fun loadMedia(entryID: String, url: String, title: String?){
         var mediaConfig = PKMediaConfig()
-        mediaConfig.mediaEntry = createMedia(entryID,url)
+        mediaConfig.mediaEntry = createMedia(entryID,url,title)
         player?.prepare(mediaConfig)
         controlsView.setMediaType(AMGMediaType.VOD)
         controlsView.setIsVOD()
