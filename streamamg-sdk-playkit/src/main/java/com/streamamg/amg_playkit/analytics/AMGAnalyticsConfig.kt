@@ -4,6 +4,7 @@ import android.util.Log
 import com.streamamg.amg_playkit.constants.AMGAnalyticsService
 
 class AMGAnalyticsConfig() {
+
     var analyticsService: AMGAnalyticsService = AMGAnalyticsService.DISABLED
     var accountCode: String = ""
     var partnerID: Int = 0
@@ -20,6 +21,15 @@ class AMGAnalyticsConfig() {
                 partnerID = amgAnalyticsPartnerID
     }
 
+    fun updateYouboraParameter(id: Int, value: String) {
+        if (analyticsService == AMGAnalyticsService.YOUBORA){
+            youboraParameters.find { x -> x.id == id }?.let {
+                it.value = value
+                return
+            }
+            youboraParameters.add(YouboraParameter(id, value))
+        }
+    }
 
     class YouboraService(
     ) {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -18,7 +19,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/exo_white" />
+            app:tint="@color/white" />
 
 
         <ImageView
@@ -30,7 +31,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/play_pause_button"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/exo_white" />
+            app:tint="@color/white" />
 
 
         <ImageView
@@ -42,7 +43,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/play_pause_button"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/exo_white" />
+            app:tint="@color/white" />
 
         <ImageView
             android:id="@+id/fullscreen_button"
@@ -52,14 +53,14 @@
             android:src="@drawable/ic_fullscreen_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/exo_white" />
+            app:tint="@color/white" />
 
 
         <LinearLayout
             android:id="@+id/scrub_bar_view"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginStart="20dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
             android:gravity="center"
@@ -69,67 +70,89 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-            <TextView
-                android:id="@+id/live_button"
-                android:visibility="gone"
-                android:fontFamily="@font/spartan_family"
-                android:layout_width="60dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/go_live"
-                app:autoSizeTextType="uniform"
-                app:autoSizeMinTextSize="8sp"
-                app:autoSizeMaxTextSize="10sp"
-                app:autoSizeStepGranularity="1sp"
-                android:textColor="@color/exo_white"
-                android:textSize="10sp" />
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/start_time"
-                android:fontFamily="@font/spartan_family"
-                android:layout_width="90dp"
-                android:layout_height="wrap_content"
-                android:gravity="start"
-                android:text="@string/empty_time"
-                android:lines="1"
-                app:autoSizeTextType="uniform"
-                app:autoSizeMinTextSize="8sp"
-                app:autoSizeMaxTextSize="10sp"
-                app:autoSizeStepGranularity="1sp"
-                android:textColor="@color/exo_white"
-                android:textSize="10sp" />
+                <SeekBar
+                    android:id="@+id/scrub_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:backgroundTint="@color/white"
+                    android:progressTint="@color/track_colour"
+                    android:thumb="@drawable/ic_thumb"
+                    app:labelBehavior="gone" />
 
-            <SeekBar
-                android:id="@+id/scrub_bar"
-                android:layout_width="0px"
-                android:layout_height="60dp"
-                android:layout_weight="1"
-                android:backgroundTint="@color/exo_white"
-                android:progressTint="@color/track_colour"
-                android:thumb="@drawable/ic_thumb"
-                app:labelBehavior="gone"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
+                    android:orientation="horizontal">
 
-                />
+                    <TextView
+                        android:id="@+id/live_button"
+                        android:visibility="gone"
+                        android:fontFamily="@font/spartan_family"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/go_live"
+                        android:paddingRight="10dp"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="8sp"
+                        app:autoSizeMaxTextSize="12sp"
+                        app:autoSizeStepGranularity="1sp"
+                        android:textColor="@color/white"
+                        android:textSize="20sp" />
 
-            <TextView
-                android:id="@+id/end_time"
-                android:fontFamily="@font/spartan_family"
-                android:layout_width="60dp"
-                android:layout_height="wrap_content"
-                android:gravity="start"
-                android:text="@string/empty_time"
-                android:textColor="@color/exo_white"
-                android:visibility="gone"
-                android:textSize="12sp" />
+                    <TextView
+                        android:id="@+id/start_time"
+                        android:fontFamily="@font/spartan_family"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="start"
+                        android:text="@string/empty_time"
+                        android:lines="1"
+                        android:paddingRight="10dp"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="8sp"
+                        app:autoSizeMaxTextSize="12sp"
+                        app:autoSizeStepGranularity="1sp"
+                        android:textColor="@color/white"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/end_time"
+                        android:fontFamily="@font/spartan_family"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="start"
+                        android:text="@string/empty_time"
+                        android:textColor="@color/white"
+                        android:visibility="gone"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="8sp"
+                        app:autoSizeMaxTextSize="12sp"
+                        app:autoSizeStepGranularity="1sp"
+                        android:textSize="20sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/spoiler_free_view"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="20dp"
             android:gravity="center"
             android:orientation="horizontal"
             android:visibility="gone"
@@ -150,7 +173,7 @@
                 android:layout_height="10dp"
                 android:layout_margin="10dp"
                 android:src="@drawable/ic_spoilerfree"
-                app:tint="@color/exo_white" />
+                app:tint="@color/white" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -158,7 +181,7 @@
                 android:layout_margin="10dp"
                 android:fontFamily="@font/spartan_family"
                 android:text="@string/spoiler_free"
-                android:textColor="@color/exo_white"
+                android:textColor="@color/white"
                 android:textSize="12sp" />
 
             <View
@@ -197,7 +220,7 @@
             android:layout_width="0px"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@color/exo_white" />
+            android:background="@color/white" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

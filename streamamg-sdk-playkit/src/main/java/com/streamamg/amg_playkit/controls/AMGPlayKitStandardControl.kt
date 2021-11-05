@@ -3,8 +3,10 @@ package com.streamamg.amg_playkit.controls
 import android.content.Context
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -12,6 +14,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.annotation.ColorRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.streamamg.amg_playkit.R
@@ -20,7 +23,7 @@ import com.streamamg.amg_playkit.constants.AMGPlayKitPlayState
 import com.streamamg.amg_playkit.interfaces.AMGControlInterface
 import com.streamamg.amg_playkit.interfaces.AMGPlayerInterface
 import com.streamamg.amg_playkit.models.AMGPlayKitStandardControlsConfigurationModel
-import java.util.*
+
 
 class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
 
@@ -304,7 +307,9 @@ player?.skipForward()
  //       Log.d("AMGISLIVE", "Playhead: $position - duration: $duration - scrubmax: ${scrubBar.max}")
         scrubBar.progress = (position / 1000).toInt()
         val timeRemaining = duration - position
-        startTime.text = "${timeForDisplay(position)} / ${timeForDisplay(timeRemaining)}"
+        startTime.text = ""
+        startTime.append("${timeForDisplay(position)}", R.color.white)
+        startTime.append(" / ${timeForDisplay(timeRemaining)}", R.color.white_opacity_70)
       //  endTime.text = timeForDisplay(timeRemaining)
 
         val percentage = position.toFloat() / duration.toFloat()
@@ -412,5 +417,21 @@ player?.skipForward()
             AMGMediaType.VOD -> setIsVOD()
             AMGMediaType.Audio -> setIsAudio()
         }
+    }
+
+    fun TextView.append(string: String?, @ColorRes color: Int) {
+        if (string == null || string.isEmpty()) {
+            return
+        }
+
+        val spannable: Spannable = SpannableString(string)
+        spannable.setSpan(
+            ForegroundColorSpan(ContextCompat.getColor(context, color)),
+            0,
+            spannable.length,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        append(spannable)
     }
 }

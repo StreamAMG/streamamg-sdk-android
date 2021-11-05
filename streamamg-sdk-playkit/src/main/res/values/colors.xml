@@ -6,4 +6,6 @@
     <color name="green">#00FF00</color>
     <color name="amg_live_track">#D0FF39</color>
     <color name="amg_vod_track">#71ABF3</color>
+    <color name="white">#FFFFFF</color>
+    <color name="white_opacity_70">#B3ffffff</color>
 </resources>

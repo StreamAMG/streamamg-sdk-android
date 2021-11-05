@@ -426,6 +426,11 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
                 .setEntryId(entryID)
             player?.updatePluginConfig(AMGAnalyticsPlugin.factory.name, kavaConfig)
         }
+
+        if (analyticsConfiguration.analyticsService == AMGAnalyticsService.YOUBORA) {
+            val youboraConfig = youboraPluginConfig()
+            player?.updatePluginConfig(YouboraPlugin.factory.name, youboraConfig)
+        }
     }
 
     private fun createPlugins(context: Context): PKPluginConfigs {
@@ -441,18 +446,8 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
             }
             AMGAnalyticsService.YOUBORA -> {
                 PlayKitManager.registerPlugins(context, YouboraPlugin.factory)
-                val youboraConfig = JsonObject()
-                youboraConfig.addProperty("accountCode", analyticsConfiguration.accountCode)
-                analyticsConfiguration.userName?.let {name ->
-                    youboraConfig.addProperty("username", name)
-                }
-
-                if (analyticsConfiguration.youboraParameters.isNotEmpty()) {
-                    youboraConfig.add("extraParams", youboraParameters(analyticsConfiguration.youboraParameters))
-                }
+                val youboraConfig = youboraPluginConfig()
                 pluginConfigs.setPluginConfig(YouboraPlugin.factory.name, youboraConfig)
-
-
             }
             else -> {}
 
@@ -466,12 +461,29 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         return pluginConfigs
     }
 
+    private fun youboraPluginConfig(): JsonObject {
+        val youboraConfig = JsonObject()
+        youboraConfig.addProperty("accountCode", analyticsConfiguration.accountCode)
+        analyticsConfiguration.userName?.let {name ->
+            youboraConfig.addProperty("username", name)
+        }
+
+        if (analyticsConfiguration.youboraParameters.isNotEmpty()) {
+            youboraConfig.add("extraParams", youboraParameters(analyticsConfiguration.youboraParameters))
+        }
+        return youboraConfig
+    }
+
     private fun youboraParameters(params: ArrayList<YouboraParameter>): JsonObject {
         val parametersConfig = JsonObject()
         for (param in params){
             parametersConfig.addProperty("param${param.id}", param.value)
         }
         return parametersConfig
+    }
+
+    fun updateYouboraParameter(id: Int, value: String){
+        analyticsConfiguration.updateYouboraParameter(id, value)
     }
 
     private fun getIMAPluginConfig(adTagUrl: String): IMAConfig? {
@@ -641,7 +653,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         return media
     }
 
-    fun loadMedia(entryID: String, url: String, title: String?){
+    fun loadLocalMedia(entryID: String, url: String, title: String?){
         var mediaConfig = PKMediaConfig()
         mediaConfig.mediaEntry = createMedia(entryID,url,title)
         player?.prepare(mediaConfig)
