@@ -1,4 +1,4 @@
-#  AMG PlayKit Library
+#  StreamSDK PlayKit Module
 
 The AMG PlayKit library is a simple to use wrapper around the Kaltura PlayKit suite. It provides a single Android View (AMGPlayKit) with which to play and interact with standard AMG provided media streams, whilst automatically taking care of media analytics, Google IMA (media advertising), basic casting and basic player UI.
 
@@ -139,6 +139,14 @@ Youbora analytics can handle up to 20 extra static parameters being passed to it
 ```
 
 If you do not pass an account code in this instance, the configuration file will not work
+
+You can also update any parameter before sending media to play by using the following function:
+
+``` Kotlin
+    updateYouboraParameter(id: Int, value: String)
+```
+
+This will change a current parameter or add a new one if it does not already exist
 
 ### Manually updating the PartnerID
 
@@ -563,6 +571,12 @@ amgPlayKit?.setSpoilerFree(enabled: Boolean) // true = spoiler free mode on, fal
 # Change Log
 
 All notable changes to this project will be documented in this section.
+
+### 0.4.1
+- Update standard UI for better UI experience
+- Correct issue with PlayKit2Go that might not load local media
+- Add the ability to change Youbora Parameters
+- Update Youbora information on media load
 
 ### 0.4 
 - Minor changes for PlayKit2Go integration
