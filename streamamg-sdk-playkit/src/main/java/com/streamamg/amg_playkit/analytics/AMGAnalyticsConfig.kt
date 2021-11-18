@@ -48,18 +48,15 @@ class AMGAnalyticsConfig() {
         fun parameter(id: Int, value: String) = apply {
             if (id in 1..20) {
                 if (youboraParametersObject.find { x -> x.id == id } != null){
-                Log.d("AMG_YOUBORA","ID $id already exists")
             } else {
                 youboraParametersObject.add(YouboraParameter(id, value))
             }
-            } else {
-            Log.d("AMG_YOUBORA","ID $id is out of range")
             }
         }
 
         fun build(): AMGAnalyticsConfig {
             if (accountCodeObject.isBlank()){
-                Log.d("AMG_YOUBORA","Creating Youbora service with no account code")
+                Log.e("AMGPlayKit","Creating Youbora service with no account code")
             }
             val service = AMGAnalyticsConfig(accountCodeObject)
             service.userName = userNameObject
@@ -79,11 +76,10 @@ class AMGAnalyticsConfig() {
         }
 
         fun build(): AMGAnalyticsConfig {
-            if (partnerObject == 0){
-                Log.d("AMG_ANALYTICS","Creating AMG service with no PartnerID")
+            if (partnerObject == 0) {
+                Log.e("AMGPlayKit", "Creating AMG service with no PartnerID")
             }
-            val service = AMGAnalyticsConfig(partnerObject)
-            return service
+            return AMGAnalyticsConfig(partnerObject)
 
         }
     }

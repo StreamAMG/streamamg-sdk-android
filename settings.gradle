@@ -6,6 +6,4 @@ include ':streamamg-sdk-playkit2go'
 include ':streamamg-sdk-purchases'
 include ':streamamg-sdk-streamplay'
 include ':app'
-include ':streamamg-sdk-demo'
-include ':streamamg-playkit-demo'
 rootProject.name = "streamamg-sdk"

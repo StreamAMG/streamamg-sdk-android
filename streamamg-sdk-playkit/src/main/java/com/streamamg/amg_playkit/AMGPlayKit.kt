@@ -7,6 +7,7 @@ import android.hardware.SensorManager
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.OrientationEventListener
@@ -49,6 +50,7 @@ The SDK, at it's most basic, is a LinearLayout, instantiated either programatica
  */
 class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 
+    private var playerShouldDestroy: Boolean = false
     internal var player: Player? = null
     private var playerState: PlayerState? = null
     lateinit var playerView: LinearLayout
@@ -120,6 +122,21 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         //createPlayer(context)
     }
 
+    fun destroyPlayer() {
+        playerShouldDestroy = true
+        pause()
+        cancelTimer()
+        playerView.removeAllViews()
+        player?.destroy()
+        player = null
+        playerState = null
+        control = null
+        orientationActivity = null
+        mSensorStateChanges = null
+        sensorEvent= null
+        listener = null
+    }
+
     fun createPlayer(context: Context, analytics: AMGAnalyticsConfig? = null) {
         analytics?.let {analytics ->
             analyticsConfiguration = analytics
@@ -137,6 +154,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         player?.let { player ->
             playerView.addView(player.view)
             player.addListener(this, PlayerEvent.stateChanged) { event ->
+                checkForDestroy()
                 playerState = event.newState
                 var newState: AMGPlayerState? = when (playerState) {
                     PlayerState.IDLE -> AMGPlayerState.Idle
@@ -300,13 +318,21 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
     }
 
     private fun playEventOccurred() {
+        checkForDestroy()
         currentPlayerState = AMGPlayerState.Playing
         control?.play()
     }
 
     private fun stopEventOccurred() {
+        checkForDestroy()
         currentPlayerState = AMGPlayerState.Stopped
         control?.pause()
+    }
+
+    private fun checkForDestroy(){
+        if (playerShouldDestroy){
+            destroyPlayer()
+        }
     }
 
     private fun changeDuration(length: Long) {
@@ -381,9 +407,12 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
     private fun loadMedia(mediaConfig: MediaItem, mediaType: AMGMediaType = AMGMediaType.VOD, from: Long = 0) {
         currentMediaItem = mediaConfig
         currentMediaType = mediaType
-        player?.let { player ->
+        if (player == null){
+            return
+        }
             updateAnalyticsPlugin(mediaConfig.entryID)
-            player.prepare(mediaConfig.mediaConfig)
+            player?.prepare(mediaConfig.mediaConfig)
+
             controlsView.setMediaType(mediaType)
             if (mediaType == AMGMediaType.VOD){
                 isLive(mediaConfig.serverURL, mediaConfig.entryID){isLiveBool ->
@@ -396,8 +425,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
                 controlsView.setMediaType(AMGMediaType.Live)
                 controlsView.setIsLive()
             }
-            player.play()
-        }
+            player?.play()
     }
 
     fun loadMedia(serverUrl: String, entryID: String, ks: String? = null, title: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD) {
@@ -654,6 +682,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
     }
 
     fun loadLocalMedia(entryID: String, url: String, title: String?){
+        updateAnalyticsPlugin(entryID)
         var mediaConfig = PKMediaConfig()
         mediaConfig.mediaEntry = createMedia(entryID,url,title)
         player?.prepare(mediaConfig)

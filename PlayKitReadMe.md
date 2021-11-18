@@ -1,4 +1,4 @@
-#  StreamSDK PlayKit Module
+#  AMG PlayKit Library
 
 The AMG PlayKit library is a simple to use wrapper around the Kaltura PlayKit suite. It provides a single Android View (AMGPlayKit) with which to play and interact with standard AMG provided media streams, whilst automatically taking care of media analytics, Google IMA (media advertising), basic casting and basic player UI.
 
@@ -108,6 +108,12 @@ And resuming the player should happen when the fragment or activity is resumed (
     playKit.playerResume()
 ```
 
+When PlayKit is no longer required, it should be destroyed. This removed all active PlayKit and Player operations (but does not affect PlayKit2Go downloads)
+
+``` Kotlin
+    playKit.destroyPlayer()
+```
+
 ### Adding an analytics service
 
 Currently Playkit supports 2 anayltics services, StreamAMG's own Media Player analyics service, and Youbora analytics.
@@ -139,14 +145,6 @@ Youbora analytics can handle up to 20 extra static parameters being passed to it
 ```
 
 If you do not pass an account code in this instance, the configuration file will not work
-
-You can also update any parameter before sending media to play by using the following function:
-
-``` Kotlin
-    updateYouboraParameter(id: Int, value: String)
-```
-
-This will change a current parameter or add a new one if it does not already exist
 
 ### Manually updating the PartnerID
 
@@ -479,6 +477,11 @@ To minimise from full screen
 playKit.minimise()
 ```
 
+If you are running PlayKit in a wider activity, as opposed to it's own activity (in a Fragment, for example), you should remove orientation when leaving the player screen (assuming you do not want the rest of the activity to be able to re-orient)
+
+``` Kotlin
+   playKit.initialiseSensor(activity, false) // activity is a non null valid Activity reference
+```
 ## Sending Media
 
 The main function of PlayKit is to play and interact with media provided by Stream AMG and it's partners.
@@ -572,15 +575,7 @@ amgPlayKit?.setSpoilerFree(enabled: Boolean) // true = spoiler free mode on, fal
 
 All notable changes to this project will be documented in this section.
 
-### 0.4.1
-- Update standard UI for better UI experience
-- Correct issue with PlayKit2Go that might not load local media
-- Add the ability to change Youbora Parameters
-- Update Youbora information on media load
-
-### 0.4 
-- Minor changes for PlayKit2Go integration
-- Added Youbora parameters
+### 0.4 - Minor changes for PlayKit2Go integration
 
 ### 0.3
 - Added Youbora analytics and the ability to choose analytics services
