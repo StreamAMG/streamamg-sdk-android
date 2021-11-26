@@ -575,6 +575,10 @@ amgPlayKit?.setSpoilerFree(enabled: Boolean) // true = spoiler free mode on, fal
 
 All notable changes to this project will be documented in this section.
 
+### 1.0 - Release
+
+### Beta releases
+
 ### 0.4 - Minor changes for PlayKit2Go integration
 
 ### 0.3

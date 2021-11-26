@@ -492,6 +492,10 @@ Change Log:
 
 All notable changes to this project will be documented in this section.
 
+### 1.0 - Release
+
+### Beta releases
+
 ### 0.2 -> 0.4 - No changes to StreamPlay
 
 ### 0.1 - Initial build

@@ -73,6 +73,10 @@ Change Log:
 
 All notable changes to this project will be documented in this section.
 
+### 1.0 - Release
+
+### Beta releases
+
 ### 0.4 - Purchases and PlayKit2Go SDKs added
 
 ### 0.3 - Updates to Core and major Playkit feature enhancements

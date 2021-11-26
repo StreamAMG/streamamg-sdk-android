@@ -175,6 +175,10 @@ Change Log:
 
 All notable changes to this project will be documented in this section.
 
+### 1.0 - Release
+
+### Beta releases
+
 ### 0.4 - PlayKit2Go Module added to SDK
 
 ### 0.1 -> 0.3 - No Purchases Module
