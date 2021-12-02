@@ -522,6 +522,8 @@ If the media does not require a KSession token, this should be left as null
 
 When sending media to the player, the mediaType defaults to VOD and will automatically attempt to determine if the media is live or VOD, this will affect the scrub bar colours (if they are different) and the layout of the scrub bar.
 
+If the media is a 'harvested' live event (such as a replay), the VOD scrub bar should show
+
 To force the player into 'live' mode, 'mediaType: .Live' should be passed to the player when sending media
 
 ``` Kotlin
@@ -568,12 +570,27 @@ PlayKit has the ability to hide the scrub bar and timing lables, effectively mak
 To enable (or disable) spoiler free mode:
 
 ``` Kotlin
-amgPlayKit?.setSpoilerFree(enabled: Boolean) // true = spoiler free mode on, false = scrub bar on
+playKit.setSpoilerFree(enabled: Boolean) // true = spoiler free mode on, false = scrub bar on
 ```
+
+### Bitrate Selection
+
+To instruct PlayKit to use a certain highest bitrate when streaming, you can use the following function:
+
+``` Kotlin
+playKit.setMaximumBitrate(bitrate: Long)
+```
+
+PlayKit will atttempt to change bitrate to that value (or the closest one BELOW that value) for the rest of the stream. This change may not be immediate.
 
 # Change Log
 
 All notable changes to this project will be documented in this section.
+
+### 1.0.1
+- Play harvested content as VODs
+- Minor design change to standard UI
+- Added bitrate selector
 
 ### 1.0 - Release
 

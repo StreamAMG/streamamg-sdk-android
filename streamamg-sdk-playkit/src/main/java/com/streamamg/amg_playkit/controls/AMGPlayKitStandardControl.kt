@@ -309,7 +309,7 @@ player?.skipForward()
         val timeRemaining = duration - position
         startTime.text = ""
         startTime.append("${timeForDisplay(position)}", R.color.white)
-        startTime.append(" / ${timeForDisplay(timeRemaining)}", R.color.white_opacity_70)
+        startTime.append(" / ${timeForDisplay(duration)}", R.color.white_opacity_70)
       //  endTime.text = timeForDisplay(timeRemaining)
 
         val percentage = position.toFloat() / duration.toFloat()

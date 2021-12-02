@@ -17,6 +17,7 @@ import com.google.gson.JsonObject
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.kaltura.playkit.*
+import com.kaltura.playkit.player.ABRSettings
 import com.kaltura.playkit.player.PKPlayerErrorType
 import com.kaltura.playkit.player.PlayerController
 import com.kaltura.playkit.plugins.ima.IMAConfig
@@ -415,7 +416,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 
             controlsView.setMediaType(mediaType)
             if (mediaType == AMGMediaType.VOD){
-                isLive(mediaConfig.serverURL, mediaConfig.entryID){isLiveBool ->
+                isLive(mediaConfig.serverURL, mediaConfig.entryID, mediaConfig.ks){isLiveBool ->
                     if (isLiveBool){
                         controlsView.setMediaType(AMGMediaType.Live)
                         controlsView.setIsLive()
@@ -839,6 +840,10 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
     fun updateMediaType(mediaType: AMGMediaType) {
         currentMediaType = mediaType
         controlsView.setMediaType(mediaType)
+    }
+
+    fun setMaximumBitrate(bitRate: Long){
+        player?.settings?.setABRSettings(ABRSettings().setMaxVideoBitrate(bitRate))
     }
 
 }
