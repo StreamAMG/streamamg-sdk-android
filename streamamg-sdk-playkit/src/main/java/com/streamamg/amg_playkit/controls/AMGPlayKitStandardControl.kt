@@ -208,7 +208,7 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
         })
 
         skipForwardButton.setOnClickListener {
-player?.skipForward()
+            player?.skipForward()
             player?.startControlVisibilityTimer()
         }
 
