@@ -73,6 +73,10 @@ Change Log:
 
 All notable changes to this project will be documented in this section.
 
+### 1.0.3 - PlayKit HLS casting update
+
+### 1.0.2 - PlayKit minor updates on standard control
+
 ### 1.0.1 - PlayKit minor updates
 
 ### 1.0 - Release

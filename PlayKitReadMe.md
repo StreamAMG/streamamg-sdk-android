@@ -123,7 +123,7 @@ To use either service, you should instantiate the player with a configuration mo
 constructor(youboraAccountCode: String)
 ```
 
-or 
+or
 
 ``` Kotlin
 constructor(amgAnalyticsPartnerID: Int)
@@ -537,16 +537,23 @@ Currently the player is either 'Live' or 'VOD'
 To access the casting URL of the currently playing media use the following function:
 
 ``` Kotlin
-playKit.castingURL(format: AMGMediaFormat = AMGMediaFormat.HLS)
+playKit.castingURL(format: AMGMediaFormat = AMGMediaFormat.HLS, completion: (URL?) -> Unit)
 ```
-Which returns either a valid URL object (not a String), or a null
+The completion returns a fully qualified casting URL (or null on error)
+
+for example:
+``` Kotlin
+playKit.castingURL(AMGMediaFormat.HLS) { url ->
+    // Work with HLS URL here
+}
+```
 
 Media format is either `AMGMediaFormat.HLS` or `AMGMediaFormat.MP4` - Defaults to HLS
 
 You can also pass media data to a separate function to return either a valid URL or null without needing to play the media in app:
 
 ``` Kotlin
-playKit.castingURL(server: String, partnerID: Int, entryID: String, ks: String? = null, format: AMGMediaFormat = AMGMediaFormat.HLS)
+playKit.castingURL(server: String, partnerID: Int, entryID: String, ks: String? = null, format: AMGMediaFormat = AMGMediaFormat.HLS, completion: (URL?) -> Unit)
 ```
 
 ### Serving Adverts
@@ -586,6 +593,10 @@ PlayKit will atttempt to change bitrate to that value (or the closest one BELOW 
 # Change Log
 
 All notable changes to this project will be documented in this section.
+
+### 1.0.3
+- Force casting URL to return a redirected URL if required (HLS only)
+- Change call to require completion
 
 ### 1.0.2
 - Tidied standard control duration field

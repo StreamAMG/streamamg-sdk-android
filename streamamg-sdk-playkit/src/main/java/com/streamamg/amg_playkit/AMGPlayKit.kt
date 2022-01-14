@@ -7,7 +7,6 @@ import android.hardware.SensorManager
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.OrientationEventListener
@@ -37,11 +36,13 @@ import com.streamamg.amg_playkit.models.*
 import com.streamamg.amg_playkit.network.isLive.PlayKitIsLiveAPI
 import com.streamamg.amg_playkit.playkitExtensions.isLive
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.concurrent.thread
 import kotlin.concurrent.timerTask
 
 /**
@@ -69,6 +70,10 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
     internal var skipForwardTime: Long = 5000
     internal var skipBackwardTime: Long = 5000
     var orientationActivity: Activity? = null
+
+    internal var castingCompletion: ((URL?) -> Unit)? = null
+    internal var castingURL: URL? = null
+    internal var initialCastingURL: String? = null
 
     var isFullScreen = false
 
@@ -245,27 +250,50 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         isLiveAPI = retroFitInstance.create(PlayKitIsLiveAPI::class.java)
     }
 
-    fun castingURL(format: AMGMediaFormat = AMGMediaFormat.HLS): URL? {
+    fun castingURL(format: AMGMediaFormat = AMGMediaFormat.HLS, completion: (URL?) -> Unit) {
+        castingCompletion = completion
+        castingURL = null
         currentMediaItem?.let {mediaItem ->
             when (format){
                 AMGMediaFormat.HLS -> {
-                    return URL("${mediaItem.serverURL}/p/${mediaItem.partnerID}/sp/0/playManifest/entryId/${mediaItem.entryID}/format/applehttp/${validKS(mediaItem.ks)}protocol/https/manifest.m3u8")
+                    val asset = URL("${mediaItem.serverURL}/p/${mediaItem.partnerID}/sp/0/playManifest/entryId/${mediaItem.entryID}/format/applehttp/${validKS(mediaItem.ks)}protocol/https/manifest.m3u8")
+                    if (!mediaItem.serverURL.isNullOrEmpty() && !asset.toString().isNullOrEmpty()) {
+                        getCastingURL(asset.toString())
+                    } else {
+                        completion(null)
+                    }
                 }
                 AMGMediaFormat.MP4 -> {
-                    return URL("${mediaItem.serverURL}/p/${mediaItem.partnerID}/sp/0/playManifest/entryId/${mediaItem.entryID}/format/url/${validKS(mediaItem.ks)}protocol/https/video/mp4")
+                    val asset = URL("${mediaItem.serverURL}/p/${mediaItem.partnerID}/sp/0/playManifest/entryId/${mediaItem.entryID}/format/url/${validKS(mediaItem.ks)}protocol/https/video/mp4")
+                    if (!mediaItem.serverURL.isNullOrEmpty() && !asset.toString().isNullOrEmpty()) {
+                        getCastingURL(asset.toString())
+                    } else {
+                        completion(null)
+                    }
                 }
             }
          }
-        return null
     }
 
-    fun castingURL(server: String, partnerID: Int, entryID: String, ks: String? = null, format: AMGMediaFormat = AMGMediaFormat.HLS): URL?{
+    fun castingURL(server: String, partnerID: Int, entryID: String, ks: String? = null, format: AMGMediaFormat = AMGMediaFormat.HLS, completion: (URL?) -> Unit) {
+        castingCompletion = completion
+        castingURL = null
         when (format){
             AMGMediaFormat.HLS -> {
-                return URL("$server/p/$partnerID/sp/0/playManifest/entryId/$entryID/format/applehttp/${validKS(ks)}protocol/https/manifest.m3u8")
+                val asset = URL("$server/p/$partnerID/sp/0/playManifest/entryId/$entryID/format/applehttp/${validKS(ks)}protocol/https/manifest.m3u8")
+                if (asset.toString().isNotEmpty()) {
+                    getCastingURL(asset.toString())
+                } else {
+                    completion(null)
+                }
             }
             AMGMediaFormat.MP4 -> {
-                return URL("$server/p/$partnerID/sp/0/playManifest/entryId/$entryID/format/url/${validKS(ks)}protocol/https/video/mp4")
+                val asset = URL("$server/p/$partnerID/sp/0/playManifest/entryId/$entryID/format/url/${validKS(ks)}protocol/https/video/mp4")
+                if (asset.toString().isNotEmpty()) {
+                    getCastingURL(asset.toString())
+                } else {
+                    completion(null)
+                }
             }
         }
     }
@@ -279,6 +307,35 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
             return "ks/$it/"
         }
         return ""
+    }
+
+    fun sendCastingURL(url: String?) {
+        if (url.isNullOrEmpty() || URL(url).toString().isNullOrEmpty()) {
+            return
+        }
+        if (castingURL == null) {
+            castingURL = URL(url)
+            castingCompletion?.invoke(castingURL)
+        }
+    }
+
+    fun getCastingURL(url: String) {
+        val validURL = URL(url.replace(" ", "%20"))
+        if (validURL == null || validURL.toString().isNullOrEmpty()) {
+            return
+        }
+        initialCastingURL = validURL.toString()
+
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url(url)
+            .get()
+            .build()
+        thread {
+            val response = client.newCall(request).execute()
+            val responseBody = response.request().url().toString()
+            sendCastingURL(responseBody)
+        }
     }
 
     fun getCurrentPlayerAssett(){
