@@ -15,8 +15,8 @@ plugins {
     id 'maven-publish'
 }
 // Versions of the library modules are matched (eg 1.0 core goes with 1.0 cloudmatrix) to prevent dependency issues
-ext.SDK_VERSION_CODE = 9
-ext.SDK_VERSION_NAME = "1.0.1"
+ext.SDK_VERSION_CODE = 10
+ext.SDK_VERSION_NAME = "1.0.3"
 
 publishing {
     publications {
