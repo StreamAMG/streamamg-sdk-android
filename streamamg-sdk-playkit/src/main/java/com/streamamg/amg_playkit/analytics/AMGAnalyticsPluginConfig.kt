@@ -21,7 +21,7 @@ class AMGAnalyticsPluginConfig {
     val DVR_THRESHOLD = "dvrThreshold"
     val PLAYBACK_CONTEXT = "playbackContext"
     val ENTRY_ID = "entryId"
-    val DEFAULT_BASE_URL = "http://stats.mp.streamamg.com/SessionUpdate" //"https://analytics.kaltura.com/api_v3/index.php"
+    val DEFAULT_BASE_URL = "https://stats.mp.streamamg.com/SessionUpdate"
 
     internal var uiconfId: Int? = null
     internal var partnerId: Int? = null

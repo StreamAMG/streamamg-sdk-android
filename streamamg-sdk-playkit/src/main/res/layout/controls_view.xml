@@ -12,8 +12,8 @@
 
         <ImageView
             android:id="@+id/play_pause_button"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="25dp"
+            android:layout_height="32dp"
             android:src="@drawable/ic_play_button"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -91,6 +91,7 @@
                     android:layout_height="wrap_content"
                     android:paddingLeft="15dp"
                     android:paddingRight="15dp"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal">
 
                     <TextView
@@ -112,8 +113,9 @@
                     <TextView
                         android:id="@+id/start_time"
                         android:fontFamily="@font/spartan_family"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:gravity="start"
                         android:text="@string/empty_time"
                         android:lines="1"
@@ -124,6 +126,15 @@
                         app:autoSizeStepGranularity="1sp"
                         android:textColor="@color/white"
                         android:textSize="20sp" />
+
+                    <ImageButton
+                        android:id="@+id/settings_button"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:scaleType="fitCenter"
+                        android:padding="5dp"
+                        android:background="@color/transparent"
+                        android:src="@drawable/ic_settings"/>
 
                     <TextView
                         android:id="@+id/end_time"
@@ -195,6 +206,39 @@
 
         </LinearLayout>
 
+        <androidx.cardview.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="45dp"
+            android:fillViewport="true"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/scrub_bar_view"
+            app:layout_constraintEnd_toEndOf="@id/scrub_bar_view"
+            app:cardBackgroundColor="@color/transparent"
+            app:cardElevation="0dp"
+            app:cardCornerRadius="8dp">
+
+            <ScrollView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom">
+
+                <LinearLayout
+                    android:id="@+id/bitrate_selector_view"
+                    android:layout_width="145dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center|bottom"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <!-- Adding here bitrate selector buttons programmatically -->
+
+                </LinearLayout>
+
+            </ScrollView>
+
+        </androidx.cardview.widget.CardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

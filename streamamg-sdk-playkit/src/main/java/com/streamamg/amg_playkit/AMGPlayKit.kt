@@ -33,8 +33,12 @@ import com.streamamg.amg_playkit.interfaces.AMGControlInterface
 import com.streamamg.amg_playkit.interfaces.AMGPlayKitListener
 import com.streamamg.amg_playkit.interfaces.AMGPlayerInterface
 import com.streamamg.amg_playkit.models.*
-import com.streamamg.amg_playkit.network.isLive.PlayKitIsLiveAPI
+import com.streamamg.amg_playkit.network.PlayKitContextDataAPI
+import com.streamamg.amg_playkit.network.PlayKitIsLiveAPI
+import com.streamamg.amg_playkit.playkitExtensions.FlavorAsset
 import com.streamamg.amg_playkit.playkitExtensions.isLive
+import com.streamamg.amg_playkit.playkitExtensions.setBitrate
+import com.streamamg.amg_playkit.playkitExtensions.updateBitrateSelector
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import retrofit2.Retrofit
@@ -58,11 +62,12 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
     lateinit var playerView: LinearLayout
     private var partnerId: Int = 0
     private var usingStandardControls: Boolean = false
-    private var analyticsURL = "http://stats.mp.streamamg.com/SessionUpdate" //"https://nudeiys3md.execute-api.eu-west-1.amazonaws.com/api/submit" //
+    private var analyticsURL = "https://stats.mp.streamamg.com/SessionUpdate"
     private var control: AMGControlInterface? = null
     lateinit var controlsView: AMGPlayKitStandardControl
     private var controlVisibleDuration: Long = 5000
     private var controlVisibleTimer: Timer? = null
+    private var bitrateSelector: Boolean = false
     lateinit var isLiveImageView: ImageView
     lateinit var logoImageView: ImageView
     var isLiveImage: Int = 0
@@ -88,10 +93,11 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 
     var currentMediaItem: MediaItem? = null
 
-    private var currentMediaType: AMGMediaType = AMGMediaType.VOD
+    internal var currentMediaType: AMGMediaType = AMGMediaType.VOD
 
     private lateinit var retroFitInstance: Retrofit
     lateinit var isLiveAPI: PlayKitIsLiveAPI
+    lateinit var contextDataAPI: PlayKitContextDataAPI
 
 
     var analyticsConfiguration = AMGAnalyticsConfig()
@@ -192,6 +198,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
                         PKPlayerErrorType.OUT_OF_MEMORY -> AMGPlayerError.OUT_OF_MEMORY
                         PKPlayerErrorType.REMOTE_COMPONENT_ERROR -> AMGPlayerError.REMOTE_COMPONENT_ERROR
                         PKPlayerErrorType.TIMEOUT -> AMGPlayerError.TIMEOUT
+                        else -> AMGPlayerError.UNEXPECTED
                     }
                     listener?.errorOccurred(AMGPlayKitError(AMGPlayerState.Error, error.errorCode, error.name))
                 }
@@ -234,6 +241,9 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         }
         playerView.setOnClickListener {
             bringControlsToForeground()
+            if (usingStandardControls) {
+                controlsView.toggleBitrateSelector(true)
+            }
         }
 
     }
@@ -248,6 +258,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
             .build()
 
         isLiveAPI = retroFitInstance.create(PlayKitIsLiveAPI::class.java)
+        contextDataAPI = retroFitInstance.create(PlayKitContextDataAPI::class.java)
     }
 
     fun castingURL(format: AMGMediaFormat = AMGMediaFormat.HLS, completion: (URL?) -> Unit) {
@@ -302,9 +313,12 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         return player?.currentPosition ?: 0
     }
 
-    private fun validKS(ks: String?): String {
-        ks?.let {
-            return "ks/$it/"
+    internal fun validKS(ks: String?, trailing: Boolean = false): String {
+        if (ks != null && ks.isNotEmpty()) {
+            if (trailing) {
+                return "ks=$ks&"
+            }
+            return "ks/$ks/"
         }
         return ""
     }
@@ -333,7 +347,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
             .build()
         thread {
             val response = client.newCall(request).execute()
-            val responseBody = response.request().url().toString()
+            val responseBody = response.request.url.toString()
             sendCastingURL(responseBody)
         }
     }
@@ -442,6 +456,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         controlVisibleDuration = controlConfig.fadeOutAfter
         skipForwardTime = controlConfig.skipForwardTime
         skipBackwardTime = controlConfig.skipBackwardTime
+        bitrateSelector = controlConfig.bitrateSelector
     }
 
     /**
@@ -462,28 +477,37 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 //        return false
 //    }
 
-    private fun loadMedia(mediaConfig: MediaItem, mediaType: AMGMediaType = AMGMediaType.VOD, from: Long = 0) {
+    internal fun loadMedia(mediaConfig: MediaItem, mediaType: AMGMediaType = AMGMediaType.VOD, from: Long = 0, bitrate: FlavorAsset? = null) {
         currentMediaItem = mediaConfig
         currentMediaType = mediaType
-        if (player == null){
+        if (player == null) {
             return
         }
-            updateAnalyticsPlugin(mediaConfig.entryID)
-            player?.prepare(mediaConfig.mediaConfig)
 
-            controlsView.setMediaType(mediaType)
-            if (mediaType == AMGMediaType.VOD){
-                isLive(mediaConfig.serverURL, mediaConfig.entryID, mediaConfig.ks){isLiveBool ->
-                    if (isLiveBool){
-                        controlsView.setMediaType(AMGMediaType.Live)
-                        controlsView.setIsLive()
-                    }
+        if (from > 0) {
+            mediaConfig.mediaConfig.startPosition = from / 1000
+        }
+
+        updateAnalyticsPlugin(mediaConfig.entryID)
+        player?.prepare(mediaConfig.mediaConfig)
+        updateBitrateSelector()
+
+        controlsView.setMediaType(mediaType)
+        if (mediaType == AMGMediaType.VOD){
+            isLive(mediaConfig.serverURL, mediaConfig.entryID, mediaConfig.ks){isLiveBool ->
+                if (isLiveBool){
+                    controlsView.setMediaType(AMGMediaType.Live)
+                    controlsView.setIsLive()
                 }
-            } else {
-                controlsView.setMediaType(AMGMediaType.Live)
-                controlsView.setIsLive()
             }
-            player?.play()
+        } else {
+            controlsView.setMediaType(AMGMediaType.Live)
+            controlsView.setIsLive()
+        }
+        if (bitrate?.bitrate != null) {
+            player?.settings?.setABRSettings(ABRSettings().setMaxVideoBitrate(bitrate.bitrate * 1024))
+        }
+        player?.play()
     }
 
     fun loadMedia(serverUrl: String, entryID: String, ks: String? = null, title: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD) {
@@ -688,6 +712,16 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
             controlVisibleTimer?.cancel()
             controlVisibleTimer = null
         }
+    }
+
+    /**
+    Manually change the highest bitrate for the rest of the stream
+     */
+    override fun setMaximumBitrate(bitrate: FlavorAsset?) {
+        bitrate.let {
+            setBitrate(it)
+        }
+        startControlVisibilityTimer()
     }
 
     private fun bringControlsToForeground() {
@@ -898,11 +932,6 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         currentMediaType = mediaType
         controlsView.setMediaType(mediaType)
     }
-
-    fun setMaximumBitrate(bitRate: Long){
-        player?.settings?.setABRSettings(ABRSettings().setMaxVideoBitrate(bitRate))
-    }
-
 }
 
 fun Int.dpToPixels(context: Context): Int = TypedValue.applyDimension(

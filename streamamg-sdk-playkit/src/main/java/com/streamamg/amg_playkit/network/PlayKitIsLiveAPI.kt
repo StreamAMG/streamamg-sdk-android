@@ -1,4 +1,4 @@
-package com.streamamg.amg_playkit.network.isLive
+package com.streamamg.amg_playkit.network
 
 import retrofit2.Call
 import retrofit2.http.POST
