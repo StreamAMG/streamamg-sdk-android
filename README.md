@@ -1,6 +1,7 @@
 
-# StreamSDK
-The StreamSDK provides simple and efficient access to StreamAMG's APIs and services
+StreamAMGSDK   [![](https://jitpack.io/v/StreamAMG/streamamg-sdk-android.svg)](https://jitpack.io/#StreamAMG/streamamg-sdk-android)
+=========
+The StreamAMGSDK provides simple and efficient access to StreamAMG's APIs and services
 
 There are currently four modules available, each of which perform a particular task, or set of tasks, within the SDK, they are:
 
