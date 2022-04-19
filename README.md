@@ -73,6 +73,8 @@ Change Log:
 
 All notable changes to this project will be documented in this section.
 
+### 1.1.0 - Improved bitrate selector UI and Playkit updates
+
 ### 1.0.3 - PlayKit HLS casting update
 
 ### 1.0.2 - PlayKit minor updates on standard control

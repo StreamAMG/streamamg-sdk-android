@@ -279,6 +279,11 @@ Set the colour of the VOD scrub bar 'tracked' time to a colour resouce (eg R.col
 .scrubBarVODColour(colour: Int)
 ```
 
+Toggle the visibility of the bitrate selector
+``` Kotlin
+.setBitrateSelector(isOn: Bool)
+```
+
 
 ## Media overlays
 
@@ -593,6 +598,11 @@ PlayKit will atttempt to change bitrate to that value (or the closest one BELOW 
 # Change Log
 
 All notable changes to this project will be documented in this section.
+
+### 1.1.0
+- Improved bitrate selector UI
+- Playkit updates
+- Modified analytics default url to https
 
 ### 1.0.3
 - Force casting URL to return a redirected URL if required (HLS only)

@@ -1,11 +1,11 @@
 buildscript {
-    ext.kotlin_version = "1.5.31"
+    ext.kotlin_version = '1.6.20'
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.2'
+        classpath 'com.android.tools.build:gradle:7.1.3'
         classpath 'com.github.dcendents:android-maven-plugin:1.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30"
     }
@@ -15,8 +15,8 @@ plugins {
     id 'maven-publish'
 }
 // Versions of the library modules are matched (eg 1.0 core goes with 1.0 cloudmatrix) to prevent dependency issues
-ext.SDK_VERSION_CODE = 10
-ext.SDK_VERSION_NAME = "1.0.3"
+ext.SDK_VERSION_CODE = 11
+ext.SDK_VERSION_NAME = "1.1.0"
 
 publishing {
     publications {
@@ -62,11 +62,11 @@ publishing {
                 def dependencyNode = dependenciesNode.appendNode('dependency')
                 dependencyNode.appendNode('groupId', 'com.kaltura.player')
                 dependencyNode.appendNode('artifactId', 'tvplayer')
-                dependencyNode.appendNode('version', '4.16.0')
+                dependencyNode.appendNode('version', '4.22.0')
                 def dependencyNode2 = dependenciesNode.appendNode('dependency')
                 dependencyNode2.appendNode('groupId', 'com.kaltura.playkit')
                 dependencyNode2.appendNode('artifactId', 'imaplugin')
-                dependencyNode2.appendNode('version', '4.15.0')
+                dependencyNode2.appendNode('version', '4.22.0')
                 def dependencyNode3 = dependenciesNode.appendNode('dependency')
                 dependencyNode3.appendNode('groupId', 'androidx.appcompat')
                 dependencyNode3.appendNode('artifactId', 'appcompat')
@@ -78,7 +78,7 @@ publishing {
                 def dependencyNode5 = dependenciesNode.appendNode('dependency')
                 dependencyNode5.appendNode('groupId', 'com.kaltura.playkit')
                 dependencyNode5.appendNode('artifactId', 'youboraplugin')
-                dependencyNode5.appendNode('version', '4.16.0')
+                dependencyNode5.appendNode('version', '4.22.0')
                 def dependencyNode6 = dependenciesNode.appendNode('dependency')
                 dependencyNode6.appendNode('groupId', 'com.squareup.retrofit2')
                 dependencyNode6.appendNode('artifactId', 'retrofit')
@@ -104,7 +104,7 @@ publishing {
                 def dependencyNode = dependenciesNode.appendNode('dependency')
                 dependencyNode.appendNode('groupId', 'com.kaltura.dtg')
                 dependencyNode.appendNode('artifactId', 'dtglib')
-                dependencyNode.appendNode('version', '2.6.11')
+                dependencyNode.appendNode('version', '2.6.15')
             }
         }
 
@@ -129,9 +129,9 @@ repositories {
 
 ext {
   //  androidx_crypto_version = '1.1.0-alpha01'
-    appcompat_version = '1.3.0'
+    appcompat_version = '1.4.1'
     constraintlayout_version = '2.0.4'
-    core_ktx_version = '1.6.0'
+    core_ktx_version = '1.7.0'
     gson_version = '2.8.6'
     lifecycle_extensions_version = '2.2.0'
     okhttp_version = '4.9.0'

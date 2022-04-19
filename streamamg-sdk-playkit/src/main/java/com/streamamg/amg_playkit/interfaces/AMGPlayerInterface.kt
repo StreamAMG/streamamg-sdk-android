@@ -1,6 +1,8 @@
 package com.streamamg.amg_playkit.interfaces
 
 import com.streamamg.amg_playkit.constants.AMGPlayKitPlayState
+import com.streamamg.amg_playkit.playkitExtensions.FlavorAsset
+
 /**
 This interface handles calls from UI controls , including play state and playhead position
  */
@@ -16,4 +18,5 @@ interface AMGPlayerInterface {
     fun playState(): AMGPlayKitPlayState
     fun swapOrientation()
     fun goLive()
+    fun setMaximumBitrate(bitrate: FlavorAsset?)
 }
