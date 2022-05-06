@@ -1,9 +1,6 @@
 package com.streamamg.amg_playkit.playkitExtensions
 
 import android.util.Log
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.kaltura.playkit.player.ABRSettings
-import com.kaltura.playkit.player.LoadControlBuffers
 import com.streamamg.amg_playkit.AMGPlayKit
 import retrofit2.Call
 import retrofit2.Callback
@@ -56,15 +53,6 @@ internal fun AMGPlayKit.updateBitrateSelector() {
 
 
 class MediaContext (
-//    val isSiteRestricted: Boolean?,
-//    val isCountryRestricted: Boolean?,
-//    val isIpAddressRestricted: Boolean?,
-//    val isUserAgentRestricted: Boolean?,
-//    val previewLength: Long?,
-//    val isScheduledNow: Boolean?,
-//    val isAdmin: Boolean?,
-//    val streamerType:String?,
-//    val mediaProtocol:String?,
     val flavorAssets: List<FlavorAsset>?,
 ) {
 
@@ -77,27 +65,10 @@ class MediaContext (
     }
 }
 
-
 class FlavorAsset (
-//    val flavorParamsId: Int?,
     val width: Long?,
     val height: Long?,
     val bitrate: Long?,
-//    val frameRate: Int?,
-//    val isOriginal: Boolean?,
-//    val isWeb: Boolean?,
-//    val containerFormat: String?,
-//    val videoCodecId: String?,
-//    val status: Int?,
     val id: String?,
-    val entryId: String?,
-//    val partnerId: Int?,
-//    val version: Int?,
-//    val size: Long?,
-//    val tags: String?,
-//    val fileExt: String?,
-//    val createdAt: Long?,
-//    val updatedAt: Long?,
-//    val deletedAt: Long?,
-//    val description: String?
+    val entryId: String?
 )

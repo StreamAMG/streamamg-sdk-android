@@ -505,7 +505,7 @@ Please note it is no longer required to pass the UIConfig parameter to PlayKit.
 If you have provided the Partner ID to the PlayKit already, you do not need to pass this with each media request:
 
 ``` Kotlin
-public fun loadMedia(serverUrl: String, entryID: String, ks: String? = null, title: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD)
+public fun loadMedia(serverUrl: String, entryID: String, ks: String? = null, title: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD, startPosition: Long = -1)
 ```
 for example:
 ``` Kotlin
@@ -514,7 +514,7 @@ playKit.loadMedia("https://mymediaserver.com", "0_myEntryID", "VALID_KS_PROVIDED
 
 Or with a Partner ID
 ``` Kotlin
-public fun loadMedia(serverUrl: String, partnerID: Int, entryID: String, ks: String? = null, title: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD)
+public fun loadMedia(serverUrl: String, partnerID: Int, entryID: String, ks: String? = null, title: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD, startPosition: Long = -1)
 ```
 for example:
 ``` Kotlin
@@ -598,6 +598,10 @@ PlayKit will atttempt to change bitrate to that value (or the closest one BELOW 
 # Change Log
 
 All notable changes to this project will be documented in this section.
+
+### 1.1.1
+- Added startPosition to loadMedia
+- Fixed bitrate selector icon when live
 
 ### 1.1.0
 - Improved bitrate selector UI

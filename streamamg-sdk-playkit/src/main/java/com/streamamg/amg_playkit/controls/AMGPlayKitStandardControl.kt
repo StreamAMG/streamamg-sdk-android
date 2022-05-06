@@ -139,7 +139,7 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
                 startTime.visibility = View.VISIBLE
         //        endTime.visibility = View.VISIBLE
             } else {
-                startTime.visibility = View.GONE
+                startTime.visibility = View.INVISIBLE
           //      endTime.visibility = View.GONE
             }
 
@@ -300,7 +300,7 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
         spoilerFreeLeftView.setBackgroundResource(scrubBarLiveColour)
         spoilerFreeRightView.setBackgroundResource(scrubBarLiveColour)
         setSpoilerFree(spoilerFreeEnabled)
-        startTime.visibility = GONE
+        startTime.visibility = INVISIBLE
         liveButton.visibility = VISIBLE
         liveButton.setTextColor(ContextCompat.getColor(context, scrubBarLiveColour))
     }
