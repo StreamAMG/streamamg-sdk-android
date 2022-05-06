@@ -477,15 +477,15 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 //        return false
 //    }
 
-    internal fun loadMedia(mediaConfig: MediaItem, mediaType: AMGMediaType = AMGMediaType.VOD, from: Long = 0, bitrate: FlavorAsset? = null) {
+    internal fun loadMedia(mediaConfig: MediaItem, mediaType: AMGMediaType = AMGMediaType.VOD, startPosition: Long = -1, bitrate: FlavorAsset? = null) {
         currentMediaItem = mediaConfig
         currentMediaType = mediaType
         if (player == null) {
             return
         }
 
-        if (from > 0) {
-            mediaConfig.mediaConfig.startPosition = from / 1000
+        if (startPosition >= 0) {
+            mediaConfig.mediaConfig.startPosition = startPosition / 1000
         }
 
         updateAnalyticsPlugin(mediaConfig.entryID)
@@ -510,9 +510,13 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         player?.play()
     }
 
-    fun loadMedia(serverUrl: String, entryID: String, ks: String? = null, title: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD) {
+    fun loadMedia(serverUrl: String, entryID: String, ks: String? = null, title: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD, startPosition: Long = -1) {
         if (partnerId > 0) {
-            loadMedia(MediaItem(serverUrl, partnerId, entryID, ks, title, mediaType), mediaType)
+            if (startPosition >= 0) {
+                loadMedia(MediaItem(serverUrl, partnerId, entryID, ks, title, mediaType), mediaType, startPosition)
+            } else {
+                loadMedia(MediaItem(serverUrl, partnerId, entryID, ks, title, mediaType), mediaType)
+            }
         } else {
             print("Please provide a PartnerID with the request, add a default with 'addPartnerID(partnerID:Int)' or set a default in the initialiser")
         }
@@ -722,6 +726,10 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
             setBitrate(it)
         }
         startControlVisibilityTimer()
+    }
+
+    fun setMaximumBitrate(bitRate: Long){
+        player?.settings?.setABRSettings(ABRSettings().setMaxVideoBitrate(bitRate))
     }
 
     private fun bringControlsToForeground() {
