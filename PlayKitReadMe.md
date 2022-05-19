@@ -599,6 +599,10 @@ PlayKit will atttempt to change bitrate to that value (or the closest one BELOW 
 
 All notable changes to this project will be documented in this section.
 
+### 1.1.2
+- Fixed chromecasting crash when offline
+- Fixed bitrate selector crash when empty list
+
 ### 1.1.1
 - Added startPosition to loadMedia
 - Fixed bitrate selector icon when live

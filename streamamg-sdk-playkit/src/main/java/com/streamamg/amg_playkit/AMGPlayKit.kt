@@ -7,6 +7,7 @@ import android.hardware.SensorManager
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.OrientationEventListener
@@ -39,10 +40,10 @@ import com.streamamg.amg_playkit.playkitExtensions.FlavorAsset
 import com.streamamg.amg_playkit.playkitExtensions.isLive
 import com.streamamg.amg_playkit.playkitExtensions.setBitrate
 import com.streamamg.amg_playkit.playkitExtensions.updateBitrateSelector
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import okhttp3.*
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.IOException
 import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
@@ -346,9 +347,16 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
             .get()
             .build()
         thread {
-            val response = client.newCall(request).execute()
-            val responseBody = response.request.url.toString()
-            sendCastingURL(responseBody)
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    Log.e(this@AMGPlayKit.javaClass.simpleName, e.localizedMessage)
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    val responseBody = response.request.url.toString()
+                    sendCastingURL(responseBody)
+                }
+            })
         }
     }
 
@@ -490,7 +498,9 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 
         updateAnalyticsPlugin(mediaConfig.entryID)
         player?.prepare(mediaConfig.mediaConfig)
-        updateBitrateSelector()
+        if (bitrateSelector) {
+            updateBitrateSelector()
+        }
 
         controlsView.setMediaType(mediaType)
         if (mediaType == AMGMediaType.VOD){
