@@ -467,12 +467,10 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
 
     fun createBitrateSelector(bitrates: List<FlavorAsset>? = null) {
         bitrateSelectorView.removeAllViews()
-        bitrateSelectorView.addView(bitrateButton(bitrates?.last(), 0, "Auto"))
-        if (bitrates != null) {
-            bitrates.forEachIndexed { index, bitrate ->
-                bitrateSelectorView.addView(bitrateDivider())
-                bitrateSelectorView.addView(bitrateButton(bitrate, index+1, "${bitrate.bitrate}"))
-            }
+        bitrateSelectorView.addView(bitrateButton(bitrates?.lastOrNull(), 0, "Auto"))
+        bitrates?.forEachIndexed { index, bitrate ->
+            bitrateSelectorView.addView(bitrateDivider())
+            bitrateSelectorView.addView(bitrateButton(bitrate, index+1, "${bitrate.bitrate}"))
         }
     }
 

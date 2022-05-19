@@ -74,6 +74,8 @@ Change Log:
 
 All notable changes to this project will be documented in this section.
 
+### 1.1.2 - Fixed bitrate and offline issues
+
 ### 1.1.1 - PlayKit minor update
 
 ### 1.1.0 - Improved bitrate selector UI and Playkit updates
