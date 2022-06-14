@@ -58,7 +58,8 @@ The SDK, at it's most basic, is a LinearLayout, instantiated either programatica
 class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 
     private var playerShouldDestroy: Boolean = false
-    internal var player: Player? = null
+    var player: Player? = null
+        private set
     private var playerState: PlayerState? = null
     lateinit var playerView: LinearLayout
     private var partnerId: Int = 0
