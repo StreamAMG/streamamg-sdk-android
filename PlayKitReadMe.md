@@ -595,9 +595,25 @@ playKit.setMaximumBitrate(bitrate: Long)
 
 PlayKit will atttempt to change bitrate to that value (or the closest one BELOW that value) for the rest of the stream. This change may not be immediate.
 
+### Media Volume / Mute option
+
+To set media volume or set mute option, you can use the setVolume function of the player:
+
+``` Kotlin
+playKit.player?.setVolume(volume: float) // 0.0F = mute, 1.0F = full volume
+```
+for example:
+``` Kotlin
+playKit.player?.setVolume(0.5F)
+```
+
 # Change Log
 
 All notable changes to this project will be documented in this section.
+
+### 1.1.3
+- AMG SDK: Update PlayKit to the version v4.23.0
+- Exposed PlayKit property
 
 ### 1.1.2
 - Fixed chromecasting crash when offline
