@@ -611,6 +611,10 @@ playKit.player?.setVolume(0.5F)
 
 All notable changes to this project will be documented in this section.
 
+### 1.1.4
+- PlayKit fixed Attempt to invoke 'getCurrentPosition()' on null instance of the player engine
+- IAP enhanced raw receipt
+
 ### 1.1.3
 - AMG SDK: Update PlayKit to the version v4.23.0
 - Exposed PlayKit property

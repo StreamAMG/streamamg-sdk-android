@@ -234,7 +234,9 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
                 listener?.durationChangeOccurred(AMGPlayKitState(AMGPlayerState.Loaded, duration = event.duration))
             }
 
-            Timer().schedule(timerTask { setCurrentPlayhead() }, 1, 100)
+            player.addListener(this, PlayerEvent.playheadUpdated) { event ->
+                setCurrentPlayhead()
+            }
 
             player.view?.isClickable = false
 
