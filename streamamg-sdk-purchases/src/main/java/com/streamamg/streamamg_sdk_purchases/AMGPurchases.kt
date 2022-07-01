@@ -1,6 +1,7 @@
 package com.streamamg.streamamg_sdk_purchases
 
 import android.app.Activity
+import android.content.Context
 import android.util.Log
 import com.android.billingclient.api.Purchase
 import com.google.gson.Gson
@@ -57,12 +58,20 @@ class AMGPurchases : PurchasesCall(), IAPInterface {
     ) {
         val receipt = purchase.originalJson
         Gson().fromJson(receipt, PurchaseReceipt::class.java)?.let {
+            val iap = iapService.iapAvailable.firstOrNull { iapItem ->
+                iapItem.purchaseID == it.productId
+            }
             val request = PurchasesValidationRequest(
                 receipt = PurchasesReceiptData(
                     it.productId,
                     it.purchaseToken,
                     it.packageName,
-                    isSub
+                    isSub,
+                    payment = PurchasePaymentData(
+                        iap?.purchaseCountry ?: "",
+                        iap?.purchaseCurrency ?: "",
+                        iap?.purchaseAmount ?: ""
+                    )
                 )
             )
             currentRequest = request
@@ -113,7 +122,10 @@ class AMGPurchases : PurchasesCall(), IAPInterface {
                     "",
                     0.0,
                     "",
-                    AMGPurchaseType.subscription
+                    AMGPurchaseType.subscription,
+                    "",
+                    "",
+                    ""
                 ), StreamAMGError(0, "An unknown error has occurred")
             )
         }
@@ -121,6 +133,10 @@ class AMGPurchases : PurchasesCall(), IAPInterface {
 
     fun setListener(listener: AMGPurchaseListener) {
         delegate = listener
+    }
+
+    fun setContext(context: Context) {
+        iapService.setContext(context)
     }
 
     fun createBillingClient(activity: Activity, skuList: ArrayList<String>? = null) {
@@ -157,7 +173,7 @@ class AMGPurchases : PurchasesCall(), IAPInterface {
 
     fun retrieveSKUs(callBack: ((ArrayList<String>?, StreamAMGError?) -> Unit)?) {
         productsSuccessCallback = callBack
-        callPackages("${purchaseURL}api/v1/package")
+        callPackages("${purchaseURL}api/v1/package?type=iap")
     }
 
     override fun productResponse(response: StreamAMGError) {

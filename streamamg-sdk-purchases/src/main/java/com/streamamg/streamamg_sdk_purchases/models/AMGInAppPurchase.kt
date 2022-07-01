@@ -8,5 +8,8 @@ data class AMGInAppPurchase(
     val purchasePriceFormatted: String,
     val purchasePrice: Double,
     val purchaseDescription: String,
-    val purchaseType: AMGPurchaseType
+    val purchaseType: AMGPurchaseType,
+    val purchaseCountry: String,
+    val purchaseCurrency: String,
+    val purchaseAmount: String
 )

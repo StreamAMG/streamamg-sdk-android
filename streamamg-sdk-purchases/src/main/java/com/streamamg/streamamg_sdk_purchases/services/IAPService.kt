@@ -1,6 +1,8 @@
 package com.streamamg.streamamg_sdk_purchases.services
 
 import android.app.Activity
+import android.content.Context
+import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.*
@@ -27,6 +29,7 @@ class IAPService: SkuDetailsResponseListener, CoroutineScope {
     var currentSKUType = BillingClient.SkuType.SUBS
     var skuList: ArrayList<String> = ArrayList()
     lateinit var billingClient: BillingClient
+    var appContext: Context? = null
 
     private val purchasesUpdatedListener =
         PurchasesUpdatedListener { billingResult, purchases ->
@@ -96,7 +99,10 @@ class IAPService: SkuDetailsResponseListener, CoroutineScope {
     private fun includePurchase(purchases: HashMap<String, SkuDetails>){
         purchases.forEach { type ->
             skuAvailable[type.key] = type.value
-            val purch = AMGInAppPurchase(type.key, type.value.description, type.value.price, 0.0, type.value.description, if (currentSKUType == BillingClient.SkuType.SUBS) AMGPurchaseType.subscription else AMGPurchaseType.nonconsumable)
+            val formattedPrice = type.value.price.replace("[^0123456789.,]".toRegex(), "")
+            val tm = appContext?.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
+            val country = tm?.simCountryIso?.uppercase() ?: ""
+            val purch = AMGInAppPurchase(type.key, type.value.description, type.value.price, 0.0, type.value.description, if (currentSKUType == BillingClient.SkuType.SUBS) AMGPurchaseType.subscription else AMGPurchaseType.nonconsumable, country, type.value.priceCurrencyCode, formattedPrice)
             iapAvailable.add(purch)
         }
     }
@@ -145,6 +151,10 @@ class IAPService: SkuDetailsResponseListener, CoroutineScope {
 
     internal fun setDelegate(delegate: IAPInterface?) {
         iapDelegate = delegate
+    }
+
+    internal fun setContext(context: Context) {
+        appContext = context
     }
 
     fun initiatePurchase(activity: Activity, sku: String) {

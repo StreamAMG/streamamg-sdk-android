@@ -41,6 +41,7 @@ The purchase SDK should be accessed via it's singleton instance
 
 ```
 val iapModule = AMGPurchases.getInstance()
+iapModule.setContext(applicationContext)
 ```
 
 ##Setting a valid URL
@@ -162,6 +163,8 @@ Change Log:
 ===========
 
 All notable changes to this project will be documented in this section.
+
+### 1.1.4 - IAP enhanced raw receipt
 
 ### 1.0.1 - Release
 

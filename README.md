@@ -74,6 +74,8 @@ Change Log:
 
 All notable changes to this project will be documented in this section.
 
+### 1.1.4 - PlayKit and IAP enhancements
+
 ### 1.1.3 - Exposed PlayKit property and PlayKit updates
 
 ### 1.1.2 - Fixed bitrate and offline issues
