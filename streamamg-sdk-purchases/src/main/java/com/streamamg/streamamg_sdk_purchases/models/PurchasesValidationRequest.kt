@@ -14,7 +14,7 @@ data class PurchasesReceiptData(
 )
 
 data class PurchasePaymentData(
-    var country: String,
-    var currency: String,
+    var countryCode: String,
+    var currencyCode: String,
     var amount: String
 )
