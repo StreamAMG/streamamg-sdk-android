@@ -2,11 +2,7 @@ package com.streamamg.amg_playkit.analytics;
 
 import android.net.Uri;
 import android.util.Log;
-
-import com.google.gson.JsonObject;
 import com.kaltura.netkit.connect.request.RequestBuilder;
-
-import org.json.JSONObject;
 
 import java.util.Map;
 

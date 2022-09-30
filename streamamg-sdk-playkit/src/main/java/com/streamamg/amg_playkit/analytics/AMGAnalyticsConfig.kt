@@ -8,17 +8,19 @@ class AMGAnalyticsConfig() {
     var analyticsService: AMGAnalyticsService = AMGAnalyticsService.DISABLED
     var accountCode: String = ""
     var partnerID: Int = 0
+    var configID: Int = 0
     var userName: String? = null
     var youboraParameters: ArrayList<YouboraParameter> = ArrayList()
 
     constructor(youboraAccountCode: String): this() {
         analyticsService = AMGAnalyticsService.YOUBORA
-                accountCode = youboraAccountCode
+        accountCode = youboraAccountCode
     }
 
-    constructor(amgAnalyticsPartnerID: Int) : this() {
+    constructor(amgAnalyticsPartnerID: Int, amgAnalyticsConfigID: Int?) : this() {
         analyticsService = AMGAnalyticsService.AMGANALYTICS
-                partnerID = amgAnalyticsPartnerID
+        partnerID = amgAnalyticsPartnerID
+        configID = amgAnalyticsConfigID ?: 0
     }
 
     fun updateYouboraParameter(id: Int, value: String) {
@@ -70,16 +72,24 @@ class AMGAnalyticsConfig() {
     class AMGService(
     ) {
         private var partnerObject: Int = 0
+        private var configObject: Int = 0
 
         fun partnerID(id: Int) = apply {
             this.partnerObject = id
+        }
+
+        fun configID(id: Int) = apply {
+            this.configObject = id
         }
 
         fun build(): AMGAnalyticsConfig {
             if (partnerObject == 0) {
                 Log.e("AMGPlayKit", "Creating AMG service with no PartnerID")
             }
-            return AMGAnalyticsConfig(partnerObject)
+            if (configObject == 0) {
+                Log.e("AMGPlayKit", "Creating AMG service with no ConfigID")
+            }
+            return AMGAnalyticsConfig(partnerObject, configObject)
 
         }
     }

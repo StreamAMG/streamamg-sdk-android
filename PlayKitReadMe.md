@@ -590,10 +590,18 @@ playKit.setSpoilerFree(enabled: Boolean) // true = spoiler free mode on, false =
 To instruct PlayKit to use a certain highest bitrate when streaming, you can use the following function:
 
 ``` Kotlin
-playKit.setMaximumBitrate(bitrate: Long)
+playKit.setMaximumBitrate(bitrate: FlavorAsset?)
 ```
 
 PlayKit will atttempt to change bitrate to that value (or the closest one BELOW that value) for the rest of the stream. This change may not be immediate.
+
+PlayKit has a listener (`AMGPlayKitListener`) that contains a method (`bitrateChangeOccurred`) that gives you the list of bitrate when available:
+``` Kotlin
+override fun bitrateChangeOccurred(list: List<FlavorAsset>?) {
+
+}
+```
+
 
 ### Media Volume / Mute option
 

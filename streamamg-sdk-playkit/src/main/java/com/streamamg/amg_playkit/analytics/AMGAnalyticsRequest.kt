@@ -21,6 +21,7 @@ data class AMGAnalyticsRequest(val eid: String, val pid: Int, val dhm: String, v
     var dcn: Long = 0 // Duration connected in Seconds
     var dpl: Long = 0 // Duration played in Seconds
     var vnt: Int = 0
+    var uas: String = ""
 
     fun date(): String {
         val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ")

@@ -48,7 +48,6 @@ import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
-import kotlin.concurrent.timerTask
 
 /**
 AMGPlayKit is an SDK that wraps Kaltura PlayKit, AMGAnalytics, IMA and other useful functions into a simple to use view.
@@ -65,6 +64,8 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
     private var partnerId: Int = 0
     private var usingStandardControls: Boolean = false
     private var analyticsURL = "https://stats.mp.streamamg.com/SessionUpdate"
+    private var analyticsMethod = AMGRequestMethod.GET
+    private var analyticsHeaders = mapOf<String, String>()
     private var control: AMGControlInterface? = null
     lateinit var controlsView: AMGPlayKitStandardControl
     private var controlVisibleDuration: Long = 5000
@@ -101,7 +102,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
     lateinit var isLiveAPI: PlayKitIsLiveAPI
     lateinit var contextDataAPI: PlayKitContextDataAPI
 
-
+    var listBitrate: List<FlavorAsset>? = mutableListOf()
     var analyticsConfiguration = AMGAnalyticsConfig()
 
     /**
@@ -452,6 +453,28 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
     }
 
     /**
+    Set custom header for the Analytics API.
+
+    Should only be used if targetting a secondary or non-standard analytics server
+
+    - Parameter requestHeader: Dictionary of header keys and value.
+     */
+    fun setAnalyticsCustomHeader(requestHeader: Map<String, String>?) {
+        analyticsHeaders = requestHeader ?: mapOf()
+    }
+
+    /**
+    Set the request method if POST or GET.
+
+    Should only be used if targetting a secondary or non-standard analytics server
+
+    - Parameter requestMethod: AMGRequestMethod can be type POST or GET.
+     */
+    fun setAnalyticsRequestMethod(requestMethod: AMGRequestMethod?) {
+        analyticsMethod = requestMethod ?: AMGRequestMethod.GET
+    }
+
+    /**
     Configures the player to use the baked in standard controls, using an optional configuration file
 
     - Parameter config: A configuration model created by either deserializing a JSON file, or by creation with the AMGControlBuilder builder class
@@ -501,8 +524,11 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 
         updateAnalyticsPlugin(mediaConfig.entryID)
         player?.prepare(mediaConfig.mediaConfig)
-        if (bitrateSelector) {
-            updateBitrateSelector()
+        updateBitrateSelector { bitrates ->
+            if (listBitrate.orEmpty() != bitrates) {
+                listener?.bitrateChangeOccurred(bitrates)
+            }
+            listBitrate = bitrates
         }
 
         controlsView.setMediaType(mediaType)
@@ -549,7 +575,10 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         if (analyticsConfiguration.analyticsService == AMGAnalyticsService.AMGANALYTICS) {
             val kavaConfig = AMGAnalyticsPluginConfig()
                 .setPartnerId(partnerId)
+                .setUiConfId(analyticsConfiguration.configID)
                 .setBaseUrl(analyticsURL)
+                .setMethodRequest(analyticsMethod)
+                .setHeaders(analyticsHeaders)
                 .setEntryId(entryID)
             player?.updatePluginConfig(AMGAnalyticsPlugin.factory.name, kavaConfig)
         }
@@ -566,10 +595,13 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         when (analyticsConfiguration.analyticsService) {
             AMGAnalyticsService.AMGANALYTICS -> {
                 PlayKitManager.registerPlugins(context, AMGAnalyticsPlugin.factory)
-        var kavaConfig = AMGAnalyticsPluginConfig()
-                .setPartnerId(analyticsConfiguration.partnerID)
-                .setBaseUrl(analyticsURL)
-        pluginConfigs.setPluginConfig(AMGAnalyticsPlugin.factory.name, kavaConfig)
+                var kavaConfig = AMGAnalyticsPluginConfig()
+                    .setPartnerId(analyticsConfiguration.partnerID)
+                    .setUiConfId(analyticsConfiguration.configID)
+                    .setBaseUrl(analyticsURL)
+                    .setMethodRequest(analyticsMethod)
+                    .setHeaders(analyticsHeaders)
+                pluginConfigs.setPluginConfig(AMGAnalyticsPlugin.factory.name, kavaConfig)
             }
             AMGAnalyticsService.YOUBORA -> {
                 PlayKitManager.registerPlugins(context, YouboraPlugin.factory)
@@ -577,7 +609,6 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
                 pluginConfigs.setPluginConfig(YouboraPlugin.factory.name, youboraConfig)
             }
             else -> {}
-
         }
 
         PlayKitManager.registerPlugins(context, IMAPlugin.factory)
@@ -741,6 +772,13 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         startControlVisibilityTimer()
     }
 
+    fun setBitrateAuto() {
+        setMaximumBitrate(listBitrate?.lastOrNull())
+    }
+
+    @Deprecated("Use the new setMaximumBitrate(bitrate: FlavorAsset?) method", ReplaceWith(
+        "setMaxVideoBitrate(bitRate))",
+        ""))
     fun setMaximumBitrate(bitRate: Long){
         player?.settings?.setABRSettings(ABRSettings().setMaxVideoBitrate(bitRate))
     }
