@@ -3,6 +3,7 @@ package com.streamamg.amg_playkit.analytics
 import com.google.gson.JsonObject
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.utils.Consts
+import com.streamamg.amg_playkit.constants.AMGRequestMethod
 
 class AMGAnalyticsPluginConfig {
     private val log = PKLog.get(AMGAnalyticsPluginConfig::class.java.simpleName)
@@ -21,7 +22,7 @@ class AMGAnalyticsPluginConfig {
     val DVR_THRESHOLD = "dvrThreshold"
     val PLAYBACK_CONTEXT = "playbackContext"
     val ENTRY_ID = "entryId"
-    val DEFAULT_BASE_URL = "https://stats.mp.streamamg.com/SessionUpdate"
+    val DEFAULT_BASE_URL = "http://stats.mp.streamamg.com/SessionUpdate"
 
     internal var uiconfId: Int? = null
     internal var partnerId: Int? = null
@@ -33,6 +34,8 @@ class AMGAnalyticsPluginConfig {
     internal var playbackContext: String? = null
     internal var applicationVersion: String? = null
     internal var baseUrl: String? = DEFAULT_BASE_URL
+    internal var methodRequest: AMGRequestMethod? = AMGRequestMethod.GET
+    internal var headers: Map<String, String>? = mapOf()
     internal var userId: String? = null
     internal var customVar1: String? = null
     internal var customVar2: String? = null
@@ -49,6 +52,16 @@ class AMGAnalyticsPluginConfig {
 
     fun setBaseUrl(baseUrl: String?): AMGAnalyticsPluginConfig {
         this.baseUrl = baseUrl
+        return this
+    }
+
+    fun setMethodRequest(method: AMGRequestMethod?): AMGAnalyticsPluginConfig {
+        this.methodRequest = method
+        return this
+    }
+
+    fun setHeaders(headers: Map<String, String>?): AMGAnalyticsPluginConfig {
+        this.headers = headers
         return this
     }
 

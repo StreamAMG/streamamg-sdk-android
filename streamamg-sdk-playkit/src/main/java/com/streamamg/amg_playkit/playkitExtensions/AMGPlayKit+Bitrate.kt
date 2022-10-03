@@ -39,14 +39,16 @@ internal fun AMGPlayKit.setBitrate(bitrate: FlavorAsset?){
     }
 }
 
-internal fun AMGPlayKit.updateBitrateSelector() {
+internal fun AMGPlayKit.updateBitrateSelector(callBack: (List<FlavorAsset>?) -> Unit) {
     fetchContextData { data ->
         if (data != null) {
             Log.d("BITRATE", "Bitrate received: ${data.fetchBitrates()?.mapNotNull { it.bitrate }.toString() }}")
             controlsView.createBitrateSelector(data.fetchBitrates())
+            callBack.invoke(data.fetchBitrates())
         } else {
             Log.d("BITRATE", "No bitrate received")
             controlsView.createBitrateSelector()
+            callBack.invoke(null)
         }
     }
 }
@@ -65,7 +67,7 @@ class MediaContext (
     }
 }
 
-class FlavorAsset (
+data class FlavorAsset (
     val width: Long?,
     val height: Long?,
     val bitrate: Long?,

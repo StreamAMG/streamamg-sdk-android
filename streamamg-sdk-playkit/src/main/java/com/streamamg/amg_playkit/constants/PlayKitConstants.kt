@@ -19,6 +19,9 @@ enum class AMGMediaType {
     Live, VOD, Audio, Live_Audio
 }
 
+enum class AMGRequestMethod {
+    GET, POST
+}
 
 enum class  AMGMediaFormat {
     MP4, HLS

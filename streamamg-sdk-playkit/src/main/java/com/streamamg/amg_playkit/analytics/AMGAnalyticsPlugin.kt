@@ -12,6 +12,8 @@ import android.text.TextUtils
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.google.gson.JsonParser
+import com.google.gson.JsonSyntaxException
 import com.kaltura.android.exoplayer2.C
 import com.kaltura.netkit.connect.executor.APIOkRequestsExecutor
 import com.kaltura.netkit.connect.executor.RequestQueue
@@ -19,10 +21,15 @@ import com.kaltura.netkit.utils.OnRequestCompletion
 import com.kaltura.playkit.*
 import com.kaltura.playkit.PKMediaEntry.MediaEntryType
 import com.kaltura.playkit.PlayerEvent.*
+import com.kaltura.playkit.player.PKPlayerErrorType
 import com.kaltura.playkit.player.metadata.PKTextInformationFrame
 import com.kaltura.playkit.plugin.kava.BuildConfig
-import com.kaltura.playkit.plugins.kava.*
+import com.kaltura.playkit.plugins.kava.KavaAnalyticsConfig
+import com.kaltura.playkit.plugins.kava.KavaAnalyticsEvent
+import com.kaltura.playkit.plugins.kava.KavaAnalyticsPlugin
+import com.kaltura.playkit.plugins.kava.KavaEvents
 import com.kaltura.playkit.utils.Consts
+import com.streamamg.amg_playkit.constants.AMGRequestMethod
 import org.json.JSONException
 import org.json.JSONObject
 import java.text.DecimalFormat
@@ -59,6 +66,8 @@ class AMGAnalyticsPlugin : PKPlugin() {
     private val viewEventTrigger = initViewTrigger()
     private var applicationBackgroundTimeStamp: Long = 0
     private var decimalFormat: DecimalFormat? = null
+    private var startPlayTime: Long = 0
+    private var loadingTime: Long = 0
 
     private var currentLoadStatus = 0
 
@@ -103,6 +112,7 @@ class AMGAnalyticsPlugin : PKPlugin() {
         }
         messageBus!!.addListener(this, loadedMetadata) { event: PKEvent? ->
             currentLoadStatus = 0
+            startPlayTime = System.currentTimeMillis()
             if (!isImpressionSent) {
                 sendAnalyticsEvent(KavaEvents.IMPRESSION)
                 dataHandler!!.handleLoadedMetaData()
@@ -129,7 +139,7 @@ class AMGAnalyticsPlugin : PKPlugin() {
         messageBus!!.addListener(this, pause) {
             setIsPaused(true)
 
-            sendAnalyticsEvent(KavaEvents.PAUSE)
+            sendAnalyticsEvent(KavaEvents.PAUSE, 3)
         }
         messageBus!!.addListener(this, playbackRateChanged) { event: PlaybackRateChanged? ->
             event?.let {
@@ -140,6 +150,7 @@ class AMGAnalyticsPlugin : PKPlugin() {
         }
         messageBus!!.addListener(this, playing) {
             currentLoadStatus = 1
+            loadingTime = System.currentTimeMillis() - startPlayTime
             if (isFirstPlay == null || isFirstPlay!!) {
                 isFirstPlay = false
                 sendAnalyticsEvent(KavaEvents.PLAY, 1)
@@ -253,6 +264,24 @@ class AMGAnalyticsPlugin : PKPlugin() {
         messageBus!!.addListener(this, error) { event: Error ->
             val error = event.error
             Log.d("AMG", "Error occurred in Analytics Plugin")
+
+            if (event.error.errorType is PKPlayerErrorType) {
+                currentLoadStatus = when (event.error.errorType as PKPlayerErrorType) {
+                    PKPlayerErrorType.SOURCE_ERROR,
+                    PKPlayerErrorType.RENDERER_ERROR,
+                    PKPlayerErrorType.UNEXPECTED,
+                    PKPlayerErrorType.SOURCE_SELECTION_FAILED,
+                    PKPlayerErrorType.FAILED_TO_INITIALIZE_PLAYER,
+                    PKPlayerErrorType.TRACK_SELECTION_FAILED,
+                    PKPlayerErrorType.LOAD_ERROR,
+                    PKPlayerErrorType.OUT_OF_MEMORY,
+                    PKPlayerErrorType.REMOTE_COMPONENT_ERROR -> 2
+                    PKPlayerErrorType.DRM_ERROR -> 3
+                    PKPlayerErrorType.TIMEOUT -> 4
+                    else -> 2
+                }
+            }
+
             if (error != null && !error.isFatal) {
                 log.v("Error eventType = " + error.errorType + " severity = " + error.severity + " errorMessage = " + error.message)
                 return@addListener
@@ -404,51 +433,72 @@ class AMGAnalyticsPlugin : PKPlugin() {
         pluginConfig?.let { plugin ->
             params?.let { data ->
 
-//            val body = AMGAnalyticsRequest(data["eid"] ?: "",
-//                    data["partnerId"]?.toInt() ?: 0,
-//                    data["dhm"] ?: "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
-//                    data["sid"] ?: "") //
-//                body.dpl = data["dpl"]?.toLong() ?: 0
-//                body.dcn = data["dcn"]?.toLong() ?: 0
-//                body.vls = currentLoadStatus
-//                body.vnt = eventID
-//          //  val requestBuilder =     KavaService.sendAnalyticsEvent(plugin.baseUrl, dataHandler?.getUserAgent(), params)
-//                body.log()
-             //   val requestBuilder = AMGRequestBuilder.getRequest(plugin.baseUrl, dataHandler?.getUserAgent(), body)
-//                val requestBuilder = getRequest(plugin.baseUrl!!, body)
-//
-  val requestBuilder =     AMGRequestBuilder.sendAnalyticsEvent(plugin.baseUrl, dataHandler?.getUserAgent(), data)
-            requestBuilder.completion(OnRequestCompletion { response ->
-                log.d("onComplete: " + event.name)
-                try {
-                    if (response == null || response.response == null) {
-                        log.w("Kava event response is null")
-                        return@OnRequestCompletion
-                    }
-//                    val jsonObject = JSONObject(response.response)
-//                 //   log.d("Response: $jsonObject")
-//                    if (jsonObject.has("sid")){
-//                        dataHandler?.updateSessionID(jsonObject.getString("sid"))
-//                    }
-                    val split = response.response.split(":")
-                    if (split.count() == 2){
-                        dataHandler?.updateSessionID(split[1])
-                    }
+                // Analytics GET (default)
+                var requestBuilder = AMGRequestBuilder.sendAnalyticsEvent(plugin.baseUrl, dataHandler?.getUserAgent(), data)
 
-                } catch (e: JSONException) {
-                    //If no, exception thrown, we will treat response as String format.
-                    if (response.response != null) {
-                        dataHandler!!.setSessionStartTime(response.response)
+                if (plugin.methodRequest == AMGRequestMethod.POST) {
+                    // Analytics POST
+                    val request = AMGAnalyticsRequest(
+                        data["eid"] ?: "",
+                        data["pid"]?.toIntOrNull() ?: 0,
+                        data["dhm"] ?: "",
+                        data["sid"] ?: "")
+                    data["rurl"]?.let { request.rurl = it }
+                    data["den"]?.let { request.den = it.toLong() }
+                    data["dpl"]?.let { request.dpl = it.toLong() }
+                    data["dcn"]?.let { request.dcn = it.toLong() }
+                    data["tsp"]?.let { request.tsp = it }
+                    plugin.uiconfId?.let {
+                        request.uci = it
                     }
+                    request.vls = currentLoadStatus
+                    request.vnt = eventID
+                    request.uas = dataHandler?.getUserAgent() ?: ""
+                    request.vlt = loadingTime
+
+                    //Analytics POST
+                    requestBuilder = AMGRequestBuilder.getRequest(plugin.baseUrl, dataHandler?.getUserAgent(), request)
                 }
-                messageBus!!.post(KavaAnalyticsEvent.KavaAnalyticsReport(event.name))
-            })
+
+                plugin.headers?.let {
+                    requestBuilder.build().headers.putAll(it)
+                }
+
+                requestBuilder.completion(OnRequestCompletion { response ->
+                    log.d("onComplete: " + event.name)
+                    try {
+                        JsonParser.parseString(response.response)
+                        // If no, exception thrown, we will treat response as Json format.
+                        if (response == null || response.response == null) {
+                            log.w("Kava event response is null")
+                            return@OnRequestCompletion
+                        }
+
+                        val values = JSONObject(response.response)
+                        val sid = values.optString("sid", "")
+                        if (!sid.isNullOrEmpty()) {
+                            dataHandler?.updateSessionID(sid)
+                        }
+                    } catch (e: JsonSyntaxException) {
+                        // If exception thrown, we will treat response as String format.
+                        val split = response.response.split(":")
+                        if (split.count() == 2) {
+                            dataHandler?.updateSessionID(split[1])
+                        }
+                    } catch (e: JSONException) {
+                        // Legacy compatibility
+                        if (response.response != null) {
+                            dataHandler!!.setSessionStartTime(response.response)
+                        }
+                    }
+                    messageBus!!.post(KavaAnalyticsEvent.KavaAnalyticsReport(event.name))
+                })
      //       log.d("request sent " + event.name + " - " + requestBuilder.build().url)
-            requestExecutor!!.queue(requestBuilder.build())
+                requestExecutor!!.queue(requestBuilder.build())
 //                body.log()
 //                body.toJson()
+            }
         }
-    }
     }
 
 //    private fun getRequest(url: String, body: AMGAnalyticsRequest): RequestBuilder {

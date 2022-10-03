@@ -713,7 +713,7 @@ class AMGDataHandler(context: Context, player: Player?) {
     }
 
     fun updateSessionID(id: String) {
-sessionId = id
+        sessionId = id
     }
 
     fun handlePlayerReachedEnd() {
