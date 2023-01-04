@@ -27,16 +27,19 @@ class AMGOptionalParameters(config: AMGAnalyticsPluginConfig) {
                 optionalParams!!["uiConfId"] = it.toString()
             }
         }
-            config.applicationVersion?.let {
-                optionalParams!!["applicationVer"] = it
-            }
-            config.playlistId?.let {
-                optionalParams!!["playlistId"] = it
-            }
-            config.userId?.let {
-                optionalParams!!["userId"] = it
-            }
+        config.userLocation?.let {
+            optionalParams!!["user_location"] = it
         }
+        config.applicationVersion?.let {
+            optionalParams!!["applicationVer"] = it
+        }
+        config.playlistId?.let {
+            optionalParams!!["playlistId"] = it
+        }
+        config.userId?.let {
+            optionalParams!!["userId"] = it
+        }
+    }
 
     fun getParams(): HashMap<String, String>? {
         return optionalParams

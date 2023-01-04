@@ -13,6 +13,7 @@ class AMGAnalyticsPluginConfig {
     val UICONF_ID = "uiconfId"
     val PARTNER_ID = "partnerId"
     val USER_ID = "userId"
+    val USER_LOCATION = "user_location"
     val CUSTOM_VAR_1 = "customVar1"
     val CUSTOM_VAR_2 = "customVar2"
     val CUSTOM_VAR_3 = "customVar3"
@@ -37,6 +38,7 @@ class AMGAnalyticsPluginConfig {
     internal var methodRequest: AMGRequestMethod? = AMGRequestMethod.GET
     internal var headers: Map<String, String>? = mapOf()
     internal var userId: String? = null
+    internal var userLocation: String? = null
     internal var customVar1: String? = null
     internal var customVar2: String? = null
     internal var customVar3: String? = null
@@ -87,6 +89,11 @@ class AMGAnalyticsPluginConfig {
 
     fun setUserId(userId: String?): AMGAnalyticsPluginConfig {
         this.userId = userId
+        return this
+    }
+
+    fun setUserLocation(location: String?): AMGAnalyticsPluginConfig {
+        this.userLocation = location
         return this
     }
 
@@ -155,6 +162,10 @@ class AMGAnalyticsPluginConfig {
         return userId
     }
 
+    fun getUserLocation(): String? {
+        return userLocation
+    }
+
     fun getCustomVar1(): String? {
         return customVar1
     }
@@ -204,6 +215,9 @@ class AMGAnalyticsPluginConfig {
         jsonObject.addProperty(REFERRER, referrer)
         if (uiconfId != null) {
             jsonObject.addProperty(UICONF_ID, uiconfId)
+        }
+        if (userLocation != null) {
+            jsonObject.addProperty(USER_LOCATION, userLocation)
         }
         jsonObject.addProperty(USER_ID, userId)
         jsonObject.addProperty(CUSTOM_VAR_1, customVar1)

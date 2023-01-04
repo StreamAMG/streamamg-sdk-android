@@ -5,6 +5,7 @@ import com.kaltura.playkit.PKMediaConfig
 import com.kaltura.playkit.PKMediaEntry
 import com.kaltura.playkit.PKMediaFormat
 import com.kaltura.playkit.PKMediaSource
+import com.kaltura.playkit.player.PKExternalSubtitle
 import com.streamamg.amg_playkit.constants.AMGMediaType
 
 class MediaItem(
@@ -13,7 +14,8 @@ class MediaItem(
     var entryID: String,
     var ks: String?,
     var title: String?,
-    var mediaType: AMGMediaType = AMGMediaType.VOD
+    var mediaType: AMGMediaType = AMGMediaType.VOD,
+    var captionAsset: CaptionAssetElement? = null
 ) {
     var mediaConfig: PKMediaConfig = PKMediaConfig()
 
@@ -22,6 +24,9 @@ class MediaItem(
         media.id = entryID
         if (title != null) {
             media.name = title
+        }
+        captionAsset?.let {
+            media.externalSubtitleList = externalSubtitlesList(it, media.duration)
         }
         var sources = PKMediaSource()
         sources.id = entryID
@@ -38,5 +43,26 @@ class MediaItem(
             else -> media.mediaType = PKMediaEntry.MediaEntryType.Vod
         }
         mediaConfig.mediaEntry = media
+    }
+
+    private fun externalSubtitlesList(list: CaptionAssetElement?, duration: Long): MutableList<PKExternalSubtitle>? {
+        if (list == null || list.objects.isNullOrEmpty()) {
+            return null
+        }
+
+        var externalSubtitles = mutableListOf<PKExternalSubtitle>()
+
+        for (value in list.objects) {
+            if (serverURL.isNotEmpty() && value.id != null && value.language != null && value.languageCode != null) {
+                val url = "$serverURL/api_v3/index.php/service/caption_captionasset/action/serveWebVTT/captionAssetId/${value.id}/segmentIndex/-1/version/2/captions.vtt"
+                val eSub = PKExternalSubtitle()
+                eSub.language = value.language
+                eSub.label = value.languageCode
+                eSub.url = url
+                externalSubtitles.add(eSub)
+            }
+        }
+
+        return externalSubtitles
     }
 }

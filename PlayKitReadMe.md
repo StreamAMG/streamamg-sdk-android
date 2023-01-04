@@ -602,7 +602,6 @@ override fun bitrateChangeOccurred(list: List<FlavorAsset>?) {
 }
 ```
 
-
 ### Media Volume / Mute option
 
 To set media volume or set mute option, you can use the setVolume function of the player:
@@ -613,6 +612,28 @@ playKit.player?.setVolume(volume: float) // 0.0F = mute, 1.0F = full volume
 for example:
 ``` Kotlin
 playKit.player?.setVolume(0.5F)
+```
+
+### Subtitle Selection
+
+To instruct PlayKit to use a certain text track when streaming (if available), you can use the following function:
+
+``` Kotlin
+playKit.changeTrack(id: String?)
+```
+
+PlayKit will atttempt to change the track to the chosen one for the rest of the stream. The id of the track should be the uniqueId of the available MediaTrack
+
+PlayKit has a listener (`AMGPlayKitListener`) that contains a method (`tracksAvailable`) that gives you the list of available `MediaTrack` including the text tracks (subtitle) when ready:
+``` Kotlin
+override fun tracksAvailable(tracks: List<MediaTrack>) {
+
+}
+```
+
+Once the tracks are available and ready, is possible to filter and select the chosen track in this way:
+``` Kotlin
+playKit.changeTrack(tracks.firstOrNull { it.language?.contains("english") == true && it.type == TrackType.TEXT }?.uniqueId)
 ```
 
 # Change Log
