@@ -45,9 +45,9 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.5.0'
     implementation 'androidx.appcompat:appcompat:1.3.0'
     implementation 'com.google.android.material:material:1.3.0'
-    implementation 'com.kaltura.player:tvplayer:4.23.0'
-    implementation 'com.kaltura.playkit:imaplugin:4.23.0'
-    implementation 'com.kaltura.playkit:youboraplugin:4.23.0'
+    implementation 'com.kaltura.player:tvplayer:4.24.1'
+    implementation 'com.kaltura.playkit:imaplugin:4.24.1'
+    implementation 'com.kaltura.playkit:youboraplugin:4.24.1'
     implementation 'com.squareup.picasso:picasso:2.8'
 
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"

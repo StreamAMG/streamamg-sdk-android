@@ -451,6 +451,9 @@ class AMGAnalyticsPlugin : PKPlugin() {
                     plugin.uiconfId?.let {
                         request.uci = it
                     }
+                    plugin.userLocation?.let {
+                        request.user_location = it
+                    }
                     request.vls = currentLoadStatus
                     request.vnt = eventID
                     request.uas = dataHandler?.getUserAgent() ?: ""

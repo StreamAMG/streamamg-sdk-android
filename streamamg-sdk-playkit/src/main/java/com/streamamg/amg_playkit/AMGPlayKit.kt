@@ -17,9 +17,7 @@ import com.google.gson.JsonObject
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.kaltura.playkit.*
-import com.kaltura.playkit.player.ABRSettings
-import com.kaltura.playkit.player.PKPlayerErrorType
-import com.kaltura.playkit.player.PlayerController
+import com.kaltura.playkit.player.*
 import com.kaltura.playkit.plugins.ima.IMAConfig
 import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin
@@ -36,8 +34,8 @@ import com.streamamg.amg_playkit.interfaces.AMGPlayerInterface
 import com.streamamg.amg_playkit.models.*
 import com.streamamg.amg_playkit.network.PlayKitContextDataAPI
 import com.streamamg.amg_playkit.network.PlayKitIsLiveAPI
-import com.streamamg.amg_playkit.playkitExtensions.FlavorAsset
-import com.streamamg.amg_playkit.playkitExtensions.isLive
+import com.streamamg.amg_playkit.network.PlayKitTracksAPI
+import com.streamamg.amg_playkit.playkitExtensions.*
 import com.streamamg.amg_playkit.playkitExtensions.setBitrate
 import com.streamamg.amg_playkit.playkitExtensions.updateBitrateSelector
 import okhttp3.*
@@ -101,6 +99,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
     private lateinit var retroFitInstance: Retrofit
     lateinit var isLiveAPI: PlayKitIsLiveAPI
     lateinit var contextDataAPI: PlayKitContextDataAPI
+    lateinit var tracksAPI: PlayKitTracksAPI
 
     var listBitrate: List<FlavorAsset>? = mutableListOf()
     var analyticsConfiguration = AMGAnalyticsConfig()
@@ -239,6 +238,14 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
                 setCurrentPlayhead()
             }
 
+            player.addListener(this, PlayerEvent.tracksAvailable) { event ->
+                val tracks: MutableList<MediaTrack> = event.tracksInfo.videoTracks.map { MediaTrack(it.uniqueId, TrackType.VIDEO, bitrate = it.bitrate, codecName = it.codecName, width = it.width, height = it.height) }.toMutableList()
+                tracks.addAll(event.tracksInfo.textTracks.map { MediaTrack(it.uniqueId, TrackType.TEXT, it.language, it.label, it.mimeType) })
+                tracks.addAll(event.tracksInfo.audioTracks.map { MediaTrack(it.uniqueId, TrackType.AUDIO, it.language, it.label, codecName = it.codecName, bitrate = it.bitrate, channelCount = it.channelCount) })
+                tracks.addAll(event.tracksInfo.imageTracks.map { MediaTrack(it.uniqueId, TrackType.IMAGE, url = it.url, bitrate = it.bitrate, duration = it.duration, label = it.label, cols = it.cols, rows = it.rows, width = it.width.toInt(), height = it.height.toInt()) })
+                listener?.tracksAvailable(tracks)
+            }
+
             player.view?.isClickable = false
 
             player.settings.setAdAutoPlayOnResume(true)
@@ -253,6 +260,10 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 
     }
 
+    fun changeTrack(id: String?) {
+        player?.changeTrack(id)
+    }
+
     private fun setUpNetwork(){
         val gson: Gson = GsonBuilder().create()
         val client: OkHttpClient = OkHttpClient.Builder().build()
@@ -264,6 +275,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 
         isLiveAPI = retroFitInstance.create(PlayKitIsLiveAPI::class.java)
         contextDataAPI = retroFitInstance.create(PlayKitContextDataAPI::class.java)
+        tracksAPI = retroFitInstance.create(PlayKitTracksAPI::class.java)
     }
 
     fun castingURL(format: AMGMediaFormat = AMGMediaFormat.HLS, completion: (URL?) -> Unit) {
@@ -531,6 +543,8 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
             listBitrate = bitrates
         }
 
+        player?.changeTrack(mediaConfig.captionAsset?.objects?.lastOrNull()?.id)
+
         controlsView.setMediaType(mediaType)
         if (mediaType == AMGMediaType.VOD){
             isLive(mediaConfig.serverURL, mediaConfig.entryID, mediaConfig.ks){isLiveBool ->
@@ -563,7 +577,9 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 
     fun loadMedia(serverUrl: String, partnerID: Int, entryID: String, ks: String? = null, title: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD) {
         partnerId = partnerID
-        loadMedia(MediaItem(serverUrl, partnerID, entryID, ks, title, mediaType), mediaType)
+        fetchTracksData(serverUrl, entryID, partnerID, ks) {
+            loadMedia(MediaItem(serverUrl, partnerID, entryID, ks, title, mediaType, it), mediaType)
+        }
     }
 
 
@@ -576,6 +592,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
             val kavaConfig = AMGAnalyticsPluginConfig()
                 .setPartnerId(partnerId)
                 .setUiConfId(analyticsConfiguration.configID)
+                .setUserLocation(analyticsConfiguration.userLocation)
                 .setBaseUrl(analyticsURL)
                 .setMethodRequest(analyticsMethod)
                 .setHeaders(analyticsHeaders)
@@ -598,6 +615,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
                 var kavaConfig = AMGAnalyticsPluginConfig()
                     .setPartnerId(analyticsConfiguration.partnerID)
                     .setUiConfId(analyticsConfiguration.configID)
+                    .setUserLocation(analyticsConfiguration.userLocation)
                     .setBaseUrl(analyticsURL)
                     .setMethodRequest(analyticsMethod)
                     .setHeaders(analyticsHeaders)
