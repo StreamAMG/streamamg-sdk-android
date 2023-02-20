@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <solid
-        android:color="@color/bitrate_dark_gray"/> <!-- Solid -->
+        android:color="@color/option_dark_gray"/> <!-- Solid -->
 
     <stroke
         android:width="3dp"
-        android:color="@color/bitrate_dark_gray" /> <!-- Border -->
+        android:color="@color/option_dark_gray" /> <!-- Border -->
 
     <corners
         android:radius="4dp"/> <!-- Shape rounded value -->

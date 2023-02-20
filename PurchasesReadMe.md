@@ -155,14 +155,27 @@ A failed purchase or receipt validation issue will result in the following metho
 ``` Kotlin
     func purchaseFailed(purchase: AMGInAppPurchase, error: StreamAMGError)
 ```
-   
+
 Where 'error' is a standard StreamAMGError (see 'Core' module)
+
+Validate a purchase
+=======================
+
+``` Kotlin
+     fun validatePurchase(purchase: Purchase, isSub: Boolean)
+     fun validatePurchase(purchase: Purchase, isSub: Boolean, jwToken : String?)
+```
+This method validates the purchase you just completed. This method also supports sending an optional custom JWT Token. You can make use of the custom JWT Token if you are not using the login functionality provided by the StreamAMG Authentication API.
+
+If you are using custom token to validate the purchase, we recommend using the startSession() API provided by the StreamAMG Authentication API to log the user sessions and to get CloudPay, check the concurrency.
 
 
 Change Log:
 ===========
 
 All notable changes to this project will be documented in this section.
+
+### 1.1.8 - Added support to pass custom JWT Token to validate purchase
 
 ### 1.1.4 - IAP enhanced raw receipt
 

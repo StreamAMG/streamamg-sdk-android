@@ -9,26 +9,33 @@ import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
 import android.util.Log
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import androidx.annotation.ColorRes
+import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.marginEnd
 import com.google.android.material.shape.CornerFamily
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
+import com.streamamg.amg_playkit.AMGPlayKit
 import com.streamamg.amg_playkit.R
 import com.streamamg.amg_playkit.constants.AMGMediaType
 import com.streamamg.amg_playkit.constants.AMGPlayKitPlayState
 import com.streamamg.amg_playkit.interfaces.AMGControlInterface
 import com.streamamg.amg_playkit.interfaces.AMGPlayerInterface
 import com.streamamg.amg_playkit.models.AMGPlayKitStandardControlsConfigurationModel
+import com.streamamg.amg_playkit.models.MediaTrack
 import com.streamamg.amg_playkit.playkitExtensions.FlavorAsset
+import java.util.*
 
 
 class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
@@ -39,6 +46,7 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
     lateinit var skipBackwardButton: ImageView
     lateinit var fullScreenButton: ImageView
     lateinit var settingsButton: ImageButton
+    lateinit var subtitleButton: ImageButton
     lateinit var scrubBar: SeekBar
     lateinit var startTime: TextView
     //lateinit var endTime: TextView
@@ -58,6 +66,7 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
     var fadeTime: Long = 5000
 
     var selectedBitrate = 0
+    var selectedSubtitle = 0
 
     var shouldHideOnOrientation = -1
     lateinit var mainView: ConstraintLayout
@@ -68,6 +77,8 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
     lateinit var mainScrubBarView: LinearLayout
     lateinit var spoilerFreeView: LinearLayout
     lateinit var bitrateSelectorView: LinearLayout
+    lateinit var subtitleSelectorView: LinearLayout
+    lateinit var subtitleContainerView: CardView
     lateinit var spoilerFreeLeftView: View
     lateinit var spoilerFreeRightView: View
 
@@ -98,6 +109,7 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
         skipForwardButton = controlsView.findViewById(R.id.skip_forwards_button)
         fullScreenButton = controlsView.findViewById(R.id.fullscreen_button)
         settingsButton = controlsView.findViewById(R.id.settings_button)
+        subtitleButton = controlsView.findViewById(R.id.subtitle_button)
         scrubBar = controlsView.findViewById(R.id.scrub_bar)
         startTime = controlsView.findViewById(R.id.start_time)
         liveButton = controlsView.findViewById(R.id.live_button)
@@ -112,6 +124,8 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
         spoilerFreeLeftView = controlsView.findViewById(R.id.spoiler_free_left_view)
         spoilerFreeRightView = controlsView.findViewById(R.id.spoiler_free_right_view)
         bitrateSelectorView = controlsView.findViewById(R.id.bitrate_selector_view)
+        subtitleSelectorView = controlsView.findViewById(R.id.subtitle_selector_view)
+        subtitleContainerView = controlsView.findViewById(R.id.cardSubtitle)
 
         addView(controlsView, MATCH_PARENT, MATCH_PARENT)
         configureView()
@@ -133,6 +147,9 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
             playPauseParams.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
 
             settingsButton.visibility = if (it.bitrateSelector) View.VISIBLE else View.GONE
+            subtitleButton.visibility = if (it.subtitleSelector) View.VISIBLE else View.GONE
+
+            if (settingsButton.visibility == VISIBLE) subtitleContainerView.margin(end = 75F)
 
             showingTimes = it.trackTimeShowing
             if (showingTimes) {
@@ -237,7 +254,13 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
         }
 
         settingsButton.setOnClickListener {
+            toggleSubtitleSelector(true)
             toggleBitrateSelector(bitrateSelectorView.visibility == View.VISIBLE)
+        }
+
+        subtitleButton.setOnClickListener {
+            toggleBitrateSelector(true)
+            toggleSubtitleSelector(subtitleSelectorView.visibility == View.VISIBLE)
         }
     }
 
@@ -249,6 +272,18 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
         } else {
             bitrateSelectorView.visibility = View.VISIBLE
             settingsButton.setBackgroundResource(R.drawable.rounded_bg)
+            player?.cancelTimer()
+        }
+    }
+
+    internal fun toggleSubtitleSelector(hide: Boolean) {
+        if (hide) {
+            subtitleSelectorView.visibility = View.GONE
+            subtitleButton.setBackgroundResource(R.color.transparent)
+            player?.startControlVisibilityTimer()
+        } else {
+            subtitleSelectorView.visibility = View.VISIBLE
+            subtitleButton.setBackgroundResource(R.drawable.rounded_bg)
             player?.cancelTimer()
         }
     }
@@ -433,6 +468,7 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
         } else {
             mainView.visibility = INVISIBLE
             bitrateSelectorView.visibility = GONE
+            subtitleSelectorView.visibility = GONE
             if (bottomTrackShouldShow) {
                 bottomScrubBar.visibility = VISIBLE
             }
@@ -465,25 +501,56 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
         append(spannable)
     }
 
-    fun createBitrateSelector(bitrates: List<FlavorAsset>? = null) {
-        bitrateSelectorView.removeAllViews()
-        bitrateSelectorView.addView(bitrateButton(bitrates?.lastOrNull(), 0, "Auto"))
-        bitrates?.forEachIndexed { index, bitrate ->
-            bitrateSelectorView.addView(bitrateDivider())
-            bitrateSelectorView.addView(bitrateButton(bitrate, index+1, "${bitrate.bitrate}"))
+    fun createSubtitleSelector(subtitles: List<MediaTrack>) {
+        subtitleSelectorView.removeAllViews()
+        subtitles.forEachIndexed { index, mediaTrack ->
+            subtitleSelectorView.addView(listDivider())
+            subtitleSelectorView.addView(subtitleButton(mediaTrack, index))
         }
     }
 
-    private fun toggleBitrateButton(index: Int, button: Button?, selected: Boolean) {
+    private fun subtitleButton(track: MediaTrack?, index: Int): Button {
+        val btnSubtitle = standardButton()
+        btnSubtitle.tag = index
+        track?.label?.let {
+            if (it == "none") {
+                btnSubtitle.setText(R.string.subtitle_off)
+            } else {
+                btnSubtitle.text = Locale(it).displayLanguage.replaceFirstChar { char -> char.uppercase() }
+            }
+        }
+
+        toggleSubtitleButton(index, btnSubtitle, selectedSubtitle == index)
+
+        btnSubtitle.setOnClickListener {
+            Log.d("SUBTITLE","Selected subtitle: ${track?.label}")
+
+            // Previous subtitle back to normal status
+            val btnPrevSubtitle = subtitleSelectorView.findViewWithTag<Button>(selectedSubtitle)
+            toggleSubtitleButton(selectedSubtitle, btnPrevSubtitle, false)
+            // Select new subtitle
+            toggleSubtitleButton(index, btnSubtitle, true)
+
+            player?.setTrack(track)
+            subtitleSelectorView.visibility = View.GONE
+            subtitleButton.setBackgroundResource(R.color.transparent)
+            selectedSubtitle = index
+        }
+
+        return btnSubtitle
+    }
+
+    private fun toggleSubtitleButton(index: Int, button: Button?, selected: Boolean) {
         if (selected) {
             // Text bold, background darker and V icon
-            button?.setBackgroundResource(R.color.bitrate_dark_gray)
+            button?.setBackgroundResource(R.color.option_dark_gray)
             button?.setTypeface(null, Typeface.BOLD)
             button?.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_checkmark, 0)
         } else {
             // Normal state
-            button?.setBackgroundResource(R.color.bitrate_medium_gray)
+            button?.setBackgroundResource(R.color.option_medium_gray)
             button?.setTypeface(null, Typeface.NORMAL)
+            button?.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0)
         }
 
         // Rounded top corner for first element (the rounded corner for last element is in CardView [parent container])
@@ -495,25 +562,67 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
                 .build()
 
             val shapeDrawable = MaterialShapeDrawable(shapeAppearanceModel)
-            shapeDrawable.fillColor = ContextCompat.getColorStateList(context, if (selected) R.color.bitrate_dark_gray else R.color.bitrate_medium_gray)
+            shapeDrawable.fillColor = ContextCompat.getColorStateList(context, if (selected) R.color.option_dark_gray else R.color.option_medium_gray)
             button?.let { ViewCompat.setBackground(it, shapeDrawable) }
         }
     }
 
-    private fun bitrateButton(bitrate: FlavorAsset?, index: Int, text: String = bitrate.toString()): Button {
-        val btnBitrate = Button(context)
-        btnBitrate.tag = index
-        btnBitrate.layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-        btnBitrate.isAllCaps = false
-        btnBitrate.text = text
-        btnBitrate.gravity = Gravity.CENTER_VERTICAL or Gravity.START
-        btnBitrate.setPadding(
+    fun createBitrateSelector(bitrates: List<FlavorAsset>? = null) {
+        bitrateSelectorView.removeAllViews()
+        bitrateSelectorView.addView(bitrateButton(bitrates?.lastOrNull(), 0, "Auto"))
+        bitrates?.forEachIndexed { index, bitrate ->
+            bitrateSelectorView.addView(listDivider())
+            bitrateSelectorView.addView(bitrateButton(bitrate, index+1, "${bitrate.bitrate}"))
+        }
+    }
+
+    private fun toggleBitrateButton(index: Int, button: Button?, selected: Boolean) {
+        if (selected) {
+            // Text bold, background darker and V icon
+            button?.setBackgroundResource(R.color.option_dark_gray)
+            button?.setTypeface(null, Typeface.BOLD)
+            button?.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_checkmark, 0)
+        } else {
+            // Normal state
+            button?.setBackgroundResource(R.color.option_medium_gray)
+            button?.setTypeface(null, Typeface.NORMAL)
+            button?.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0)
+        }
+
+        // Rounded top corner for first element (the rounded corner for last element is in CardView [parent container])
+        if (index == 0) {
+            val shapeAppearanceModel: ShapeAppearanceModel = ShapeAppearanceModel()
+                .toBuilder()
+                .setTopLeftCorner(CornerFamily.ROUNDED, 8 * resources.displayMetrics.density)
+                .setTopRightCorner(CornerFamily.ROUNDED, 8 * resources.displayMetrics.density)
+                .build()
+
+            val shapeDrawable = MaterialShapeDrawable(shapeAppearanceModel)
+            shapeDrawable.fillColor = ContextCompat.getColorStateList(context, if (selected) R.color.option_dark_gray else R.color.option_medium_gray)
+            button?.let { ViewCompat.setBackground(it, shapeDrawable) }
+        }
+    }
+
+    private fun standardButton(): Button {
+        val button = Button(context)
+        button.layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+        button.isAllCaps = false
+        button.gravity = Gravity.CENTER_VERTICAL or Gravity.START
+        button.setPadding(
             (16 * resources.displayMetrics.density).toInt(),
             (6 * resources.displayMetrics.density).toInt(),
             (16 * resources.displayMetrics.density).toInt(),
             (6 * resources.displayMetrics.density).toInt()
         )
-        btnBitrate.setTextColor(ContextCompat.getColor(context, R.color.white))
+        button.setTextColor(ContextCompat.getColor(context, R.color.white))
+
+        return button
+    }
+
+    private fun bitrateButton(bitrate: FlavorAsset?, index: Int, text: String = bitrate.toString()): Button {
+        val btnBitrate = standardButton()
+        btnBitrate.tag = index
+        btnBitrate.text = text
 
         toggleBitrateButton(index, btnBitrate, selectedBitrate == index)
 
@@ -535,13 +644,26 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
         return btnBitrate
     }
 
-    private fun bitrateDivider(): View {
+    private fun listDivider(): View {
         val divider = View(context)
         val layout = FrameLayout.LayoutParams(MATCH_PARENT, (0.5 * resources.displayMetrics.density).toInt())
         layout.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
         divider.layoutParams = layout
-        divider.setBackgroundResource(R.color.bitrate_dark_gray)
+        divider.setBackgroundResource(R.color.option_dark_gray)
 
         return divider
     }
 }
+
+fun View.margin(end: Float? = null) {
+    layoutParams<ViewGroup.MarginLayoutParams> {
+        end?.run { marginEnd = dpToPx(this) }
+    }
+}
+
+inline fun <reified T : ViewGroup.LayoutParams> View.layoutParams(block: T.() -> Unit) {
+    if (layoutParams is T) block(layoutParams as T)
+}
+
+fun View.dpToPx(dp: Float): Int = context.dpToPx(dp)
+fun Context.dpToPx(dp: Float): Int = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, resources.displayMetrics).toInt()

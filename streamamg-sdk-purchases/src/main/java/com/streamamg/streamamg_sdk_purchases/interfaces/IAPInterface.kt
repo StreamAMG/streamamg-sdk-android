@@ -4,5 +4,6 @@ import com.android.billingclient.api.Purchase
 
 internal interface IAPInterface {
     fun updateIAPUI()
-    fun validatePurcahse(purchase: Purchase, isSub:Boolean)
+    fun validatePurchase(purchase: Purchase, isSub:Boolean)
+    fun validatePurchase(purchase: Purchase, isSub:Boolean, jwToken: String?)
 }

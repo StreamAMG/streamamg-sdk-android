@@ -69,6 +69,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
     private var controlVisibleDuration: Long = 5000
     private var controlVisibleTimer: Timer? = null
     private var bitrateSelector: Boolean = false
+    private var subtitleSelector: Boolean = false
     lateinit var isLiveImageView: ImageView
     lateinit var logoImageView: ImageView
     var isLiveImage: Int = 0
@@ -103,6 +104,8 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 
     var listBitrate: List<FlavorAsset>? = mutableListOf()
     var analyticsConfiguration = AMGAnalyticsConfig()
+
+    internal var tracks: MutableList<MediaTrack>? = null
 
     /**
     Standard initialisation
@@ -239,11 +242,14 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
             }
 
             player.addListener(this, PlayerEvent.tracksAvailable) { event ->
-                val tracks: MutableList<MediaTrack> = event.tracksInfo.videoTracks.map { MediaTrack(it.uniqueId, TrackType.VIDEO, bitrate = it.bitrate, codecName = it.codecName, width = it.width, height = it.height) }.toMutableList()
-                tracks.addAll(event.tracksInfo.textTracks.map { MediaTrack(it.uniqueId, TrackType.TEXT, it.language, it.label, it.mimeType) })
-                tracks.addAll(event.tracksInfo.audioTracks.map { MediaTrack(it.uniqueId, TrackType.AUDIO, it.language, it.label, codecName = it.codecName, bitrate = it.bitrate, channelCount = it.channelCount) })
-                tracks.addAll(event.tracksInfo.imageTracks.map { MediaTrack(it.uniqueId, TrackType.IMAGE, url = it.url, bitrate = it.bitrate, duration = it.duration, label = it.label, cols = it.cols, rows = it.rows, width = it.width.toInt(), height = it.height.toInt()) })
-                listener?.tracksAvailable(tracks)
+                tracks = event.tracksInfo.videoTracks.map { MediaTrack(it.uniqueId, TrackType.VIDEO, bitrate = it.bitrate, codecName = it.codecName, width = it.width, height = it.height) }.toMutableList()
+                tracks?.addAll(event.tracksInfo.textTracks.map { MediaTrack(it.uniqueId, TrackType.TEXT, it.language, it.label, it.mimeType) })
+                tracks?.addAll(event.tracksInfo.audioTracks.map { MediaTrack(it.uniqueId, TrackType.AUDIO, it.language, it.label, codecName = it.codecName, bitrate = it.bitrate, channelCount = it.channelCount) })
+                tracks?.addAll(event.tracksInfo.imageTracks.map { MediaTrack(it.uniqueId, TrackType.IMAGE, url = it.url, bitrate = it.bitrate, duration = it.duration, label = it.label, cols = it.cols, rows = it.rows, width = it.width.toInt(), height = it.height.toInt()) })
+                tracks?.let {
+                    listener?.tracksAvailable(it)
+                    controlsView.createSubtitleSelector(it.filter { it.type == TrackType.TEXT })
+                }
             }
 
             player.view?.isClickable = false
@@ -255,13 +261,22 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
             bringControlsToForeground()
             if (usingStandardControls) {
                 controlsView.toggleBitrateSelector(true)
+                controlsView.toggleSubtitleSelector(true)
             }
         }
 
     }
 
+    override fun setTrack(track: MediaTrack?) {
+        changeTrack(track?.uniqueId ?: "")
+    }
+
     fun changeTrack(id: String?) {
         player?.changeTrack(id)
+    }
+
+    fun getTracks() : List<MediaTrack>? {
+        return tracks?.toList()
     }
 
     private fun setUpNetwork(){
@@ -503,6 +518,7 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         skipForwardTime = controlConfig.skipForwardTime
         skipBackwardTime = controlConfig.skipBackwardTime
         bitrateSelector = controlConfig.bitrateSelector
+        subtitleSelector = controlConfig.subtitleSelector
     }
 
     /**

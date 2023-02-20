@@ -61,8 +61,70 @@ authenticationSdk.login(email, password) { result ->
 }
 ```
 
+Using custom SSO
+=======================
+Authentication SDK supports custom SSO implementation that are correctly configured with CloudPay and are able to generate a valid use JWT token.
 
+## Start the session with custom SSO
 
+In order to comunicate with CloudPay the app needs to start the session with the users token.
+
+```
+authenticationSdk.startSession("jwtToken",
+    onSuccess = {
+
+    },
+    onError = {
+        error ->
+    }
+)
+```
+## Update user summary
+The update user summary function allows a user to update their user details if the user is already logged in via StreamAMGSDK. Please be aware that the API cannot edit the user's email.
+
+This function needs to be utilised after a new user is registered and every time the user wants to update the metadata.
+
+```
+authenticationSdk.updateUserSummary(firstname,lastname,
+    onSuccess = {
+        userSummary ->
+    },
+    onError = {
+        error ->
+    }
+)
+```
+
+## Update user summary with token
+The update user summary function allows a user to update their user details if user has a valid JWT token. Please be aware that the API cannot edit the user's email.
+
+This function needs to be utilised after a new user is registered and every time the user wants to update the metadata.
+
+```
+authenticationSdk.updateUserSummary(firstname,lastname, token
+    onSuccess = {
+        userSummary ->
+    },
+    onError = {
+        error ->
+    }
+)
+```
+## Retrieve user summary
+The retrieve user summary function allows a user to retrieve their user details if the user has a valid token.
+
+This function can be used to retrieve the user account details such as ProfileInformation, BillingDetails, CardDetails,Subscription Details.
+
+```
+authenticationSdk.getUserSummary(token
+    onSuccess = {
+        userSummary ->
+    },
+    onError = {
+        error ->
+    }
+)
+```
 Change Log:
 ===========
 
