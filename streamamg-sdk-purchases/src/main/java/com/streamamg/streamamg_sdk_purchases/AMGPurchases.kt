@@ -94,13 +94,17 @@ class AMGPurchases : PurchasesCall(), IAPInterface {
         delegate?.purchasesAvailable(iapService.iapAvailable)
     }
 
-    override fun validatePurcahse(purchase: Purchase, isSub: Boolean) {
+    override fun validatePurchase(purchase: Purchase, isSub: Boolean) {
+        validatePurchase(purchase,isSub, authenticationSdk.lastLoginResponse?.authenticationToken)
+    }
+
+    override fun validatePurchase(purchase: Purchase, isSub: Boolean, jwToken : String?) {
         Log.d("AMGCall", "Calling validation")
         var purchaseFound = false
         iapService.amgPurchaseFrom(purchase)?.let { iap ->
             purchaseFound = true
             var authenticated = false
-            authenticationSdk.lastLoginResponse?.authenticationToken?.let { token ->
+            jwToken?.let { token ->
                 authenticated = true
                 validate(purchase, token, isSub) { response, error ->
                     if (error == null) {

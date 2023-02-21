@@ -8,10 +8,7 @@ import com.streamamg.streamamg_sdk_authentication.api.LoginRequest
 import com.streamamg.streamamg_sdk_authentication.api.LoginResponse
 import com.streamamg.streamamg_sdk_authentication.extension.applySchedulers
 import com.streamamg.streamamg_sdk_authentication.mappers.mapStreamAMGUser
-import com.streamamg.streamamg_sdk_authentication.model.Credentials
-import com.streamamg.streamamg_sdk_authentication.model.GetKeySessionResult
-import com.streamamg.streamamg_sdk_authentication.model.LoginResult
-import com.streamamg.streamamg_sdk_authentication.model.LogoutResult
+import com.streamamg.streamamg_sdk_authentication.model.*
 import com.streamamg.streamapi_core.StreamAMGSDK
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -60,7 +57,7 @@ internal class StreamAMGAuthenticationSDK(
                 .baseUrl(url)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
+                .addConverterFactory(GsonConverterFactory.create(GsonBuilder().serializeNulls().create()))
                 .build()
                 .create(AuthenticationApi::class.java)
         } ?: throw Exception("Core is not initialised!")
@@ -98,6 +95,122 @@ internal class StreamAMGAuthenticationSDK(
                     callback.invoke(LogoutResult.LogoutFailed(it))
                 })
             ?.addTo(disposable)
+    }
+
+    /*
+        In order to perform queries against the CloudPay API a user must first initialise a session.
+        This can be done for SSO users by generating a SSO Session.
+        token: The JWT Token used for Authorisation
+        onSuccess: On successful completion returns back the user account details
+        onError: Returns back any failure details
+     */
+    override fun startSession(token: String, onSuccess: () -> Unit, onError: (Error) -> Unit) {
+        if (apiUrl.isNullOrBlank()) {
+            onError(Error("Authentication API URL not set"))
+            return
+        }
+        if (token.isBlank()) {
+            onError(Error("Invalid token set"))
+            return
+        }
+        api?.startSession(token, paramsMap)?.applySchedulers()?.subscribeBy(
+            onSuccess = {
+                onSuccess()
+            },
+            onError = {
+                loginResponse = null
+                onError(Error(it.message))
+            }
+        )
+    }
+
+    /*
+        Updates account details of the authenticated user. Use this method only if user already logged in via StreamAMG SDK
+        firstName: First name of the user
+        lastName: Last name of the user
+        onSuccess: On successful completion returns back the user account details
+        onError: Returns back any failure details
+     */
+    override fun updateUserSummary(
+        firstName: String,
+        lastName: String,
+        onSuccess: (UserSummary.UserSummaryResponse) -> Unit,
+        onError: (UserSummary.Error) -> Unit
+    ) {
+        loginResponse?.authenticationToken?.let { token ->
+            updateUserSummaryWithUserToken(firstName,lastName,token, onSuccess, onError)
+            return
+        }
+        onError(UserSummary.Error(Throwable("User not logged in")))
+    }
+
+    /*
+        Updates account details of the authenticated user.
+        firstName: First name of the user
+        lastName: Last name of the user
+        token: The JWT Token used for Authorisation
+        onSuccess: On successful completion returns back the user account details
+        onError: Returns back any failure details
+     */
+    override fun updateUserSummaryWithUserToken(
+        firstName: String,
+        lastName: String,
+        token: String,
+        onSuccess: (UserSummary.UserSummaryResponse) -> Unit,
+        onError: (UserSummary.Error) -> Unit
+    ) {
+        if (apiUrl.isNullOrBlank()) {
+            onError(UserSummary.Error(Error("Authentication API URL not set")))
+            return
+        }
+        if (firstName.isBlank()) {
+            onError(UserSummary.Error(Error("First name not valid")))
+            return
+        }
+        if (lastName.isBlank()) {
+            onError(UserSummary.Error(Error("Last name not valid")))
+            return
+        }
+        if (token.isBlank()) {
+            onError(UserSummary.Error(Error("Invalid Token set")))
+            return
+        }
+        val userSummaryRequest = UserSummary.UserSummaryRequest(firstName, lastName)
+        api?.updateUserSummary(token, userSummaryRequest, paramsMap)?.applySchedulers()?.subscribeBy(
+            onSuccess = {
+                onSuccess(it)
+            },
+            onError = {
+                loginResponse = null
+                onError(UserSummary.Error(it))
+            }
+        )
+    }
+
+    /*
+        Returns the account details of the authenticated user. Response includes
+        users profile details, billing details, subscription details and card details
+        token: The JWT Token used for Authorisation
+        onSuccess: On successful completion returns back the user account details
+        onError: Returns back any failure details
+     */
+    override fun getUserSummaryWithUserToken(
+        token: String,
+        onSuccess: (UserSummary.UserSummaryResponse) -> Unit,
+        onError: (UserSummary.Error) -> Unit
+    ) {
+        if (token.isBlank()) {
+            onError(UserSummary.Error(Error("Invalid Token set")))
+            return
+        }
+        api?.getUserSummary(token, paramsMap)?.applySchedulers()?.subscribeBy (
+            onSuccess = {
+                onSuccess(it)
+            },
+            onError = {
+                onError(UserSummary.Error(it))
+            }
+        )
     }
 
     override fun loginSyncToken(email: String, password: String): String {
@@ -236,7 +349,7 @@ internal class StreamAMGAuthenticationSDK(
     }
 
     companion object {
-        val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").create()
+        val gson = GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").create()
         const val SECURE_KEY_EMAIL = "email"
         const val SECURE_KEY_PASSWORD = "password"
     }

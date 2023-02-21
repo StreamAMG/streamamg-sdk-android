@@ -74,6 +74,14 @@ Change Log:
 
 All notable changes to this project will be documented in this section.
 
+### 1.1.8 - Integrated Subtitles UI and added support to pass custom JWT Token when validating purchase
+
+### 1.1.7 - Subtitle and minor updates
+
+### 1.1.6 - Bitrate listener and improved Analytics
+
+### 1.1.5 - IAP enhanced raw receipt
+
 ### 1.1.4 - PlayKit and IAP enhancements
 
 ### 1.1.3 - Exposed PlayKit property and PlayKit updates

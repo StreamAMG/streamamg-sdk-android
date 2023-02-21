@@ -51,7 +51,7 @@ class IAPService: SkuDetailsResponseListener, CoroutineScope {
         }
         val acknowledgePurchaseResponseListener: AcknowledgePurchaseResponseListener = AcknowledgePurchaseResponseListener {
             if (it.responseCode == 0) {
-                iapDelegate?.validatePurcahse(purchase, isSub)
+                iapDelegate?.validatePurchase(purchase, isSub)
             }
         }
 
@@ -61,7 +61,7 @@ class IAPService: SkuDetailsResponseListener, CoroutineScope {
                     .setPurchaseToken(purchase.purchaseToken)
                 billingClient.acknowledgePurchase(acknowledgePurchaseParams.build(), acknowledgePurchaseResponseListener)
             } else {
-                iapDelegate?.validatePurcahse(purchase, isSub)
+                iapDelegate?.validatePurchase(purchase, isSub)
             }
         }
     }

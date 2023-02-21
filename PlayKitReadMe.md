@@ -284,6 +284,11 @@ Toggle the visibility of the bitrate selector
 .setBitrateSelector(isOn: Bool)
 ```
 
+Toggle the visibility of the subtitles selector
+``` Kotlin
+.setSubtitlesSelector(_ isOn: Bool)
+```
+
 
 ## Media overlays
 
@@ -614,9 +619,9 @@ for example:
 playKit.player?.setVolume(0.5F)
 ```
 
-### Subtitle Selection
+### Track and Subtitle Selection
 
-To instruct PlayKit to use a certain text track when streaming (if available), you can use the following function:
+To instruct PlayKit to use a certain track when streaming (if available), you can use the following function:
 
 ``` Kotlin
 playKit.changeTrack(id: String?)
@@ -640,9 +645,23 @@ playKit.changeTrack(tracks.firstOrNull { it.language?.contains("english") == tru
 
 All notable changes to this project will be documented in this section.
 
+### 1.1.8
+- Subtitles UI selector
+
+### 1.1.7
+- Subtitle feature (no UI integration)
+- Added user location to AMG Analytics Plugin
+- Updated PlayKit libraries
+
+### 1.1.6
+- Bitrate listener added
+- Fixed and improved AMG Analytics
+
+### 1.1.5
+- IAP enhanced raw receipt
+
 ### 1.1.4
 - PlayKit fixed Attempt to invoke 'getCurrentPosition()' on null instance of the player engine
-- IAP enhanced raw receipt
 
 ### 1.1.3
 - AMG SDK: Update PlayKit to the version v4.23.0

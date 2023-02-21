@@ -24,7 +24,8 @@ data class AMGPlayKitStandardControlsConfigurationModel(
         var minimiseImage: Int = 0,
         var scrubBarLiveColour: Int = 0,
         var scrubBarVODColour: Int = 0,
-        var bitrateSelector: Boolean = false
+        var bitrateSelector: Boolean = false,
+        var subtitleSelector: Boolean = false
 ) {
 }
 
@@ -56,6 +57,7 @@ class AMGControlBuilder {
     private var scrubBarLiveColour: Int = 0
     private var scrubBarVODColour: Int = 0
     private var bitrateSelector: Boolean = false
+    private var subtitlesSelector: Boolean = false
 
 
     /**
@@ -179,6 +181,13 @@ class AMGControlBuilder {
     }
 
     /**
+    Toggle the visibility of the subtitle selector
+     */
+    public fun setSubtitlesSelector(isOn: Boolean) = apply {
+        subtitlesSelector = isOn
+    }
+
+    /**
     Set the time skipped for backward skip in milliseconds
      */
     public fun setSkipBackwardTime(time: Long) = apply {
@@ -210,7 +219,7 @@ class AMGControlBuilder {
     Returns a complete and valid AMGPlayKitStandardControlsConfigurationModel
      */
     fun build(): AMGPlayKitStandardControlsConfigurationModel {
-        return AMGPlayKitStandardControlsConfigurationModel(fadeInTogglesPausePlay, fadeInTime, fadeOutTime, fadeOutAfter, slideBarPosition, trackTimeShowing, currentTimeShowing, skipForwardTime, skipBackwardTime, hideFullscreen, hideFullscreenOnFS, isLiveImage, logoImage, playImage, pauseImage, skipForwardImage, skipBackwardImage, fullScreenImage, minimiseImage, scrubBarLiveColour, scrubBarVODColour, bitrateSelector)
+        return AMGPlayKitStandardControlsConfigurationModel(fadeInTogglesPausePlay, fadeInTime, fadeOutTime, fadeOutAfter, slideBarPosition, trackTimeShowing, currentTimeShowing, skipForwardTime, skipBackwardTime, hideFullscreen, hideFullscreenOnFS, isLiveImage, logoImage, playImage, pauseImage, skipForwardImage, skipBackwardImage, fullScreenImage, minimiseImage, scrubBarLiveColour, scrubBarVODColour, bitrateSelector, subtitlesSelector)
     }
 
     //
