@@ -130,6 +130,8 @@ Change Log:
 
 All notable changes to this project will be documented in this section.
 
+### 1.1.9-SNAPSHOT - Remove getKS call after successful login
+
 ### 1.0.1 - Release
 
 ### Beta releases

@@ -74,6 +74,8 @@ Change Log:
 
 All notable changes to this project will be documented in this section.
 
+### 1.1.9-SNAPSHOT - Remove getKS call after successful login
+
 ### 1.1.8 - Integrated Subtitles UI and added support to pass custom JWT Token when validating purchase
 
 ### 1.1.7 - Subtitle and minor updates

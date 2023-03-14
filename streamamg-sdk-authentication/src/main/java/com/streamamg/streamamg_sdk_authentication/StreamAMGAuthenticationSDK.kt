@@ -272,12 +272,10 @@ internal class StreamAMGAuthenticationSDK(
                 errors?.concurrency != null -> callback.invoke(LoginResult.Concurrency(errors.concurrency))
             }
         } else {
-            response.authenticationToken?.let { token ->
+            response.authenticationToken?.let {
                 saveCredentials(email, password)
-                getKS("") { result ->
-                    val user = mapStreamAMGUser(response.currentCustomerSession)
-                    user?.let { callback.invoke(LoginResult.LoginOK(it)) }
-                }
+                val user = mapStreamAMGUser(response.currentCustomerSession)
+                user?.let { callback.invoke(LoginResult.LoginOK(it)) }
             }
         }
     }
