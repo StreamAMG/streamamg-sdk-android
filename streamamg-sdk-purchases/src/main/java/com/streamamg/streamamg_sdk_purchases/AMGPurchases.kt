@@ -50,7 +50,7 @@ class AMGPurchases : PurchasesCall(), IAPInterface {
         purchaseURL = baseURL
     }
 
-    fun validate(
+    private fun validate(
         purchase: Purchase,
         token: String,
         isSub: Boolean,
@@ -88,17 +88,40 @@ class AMGPurchases : PurchasesCall(), IAPInterface {
 
     override fun response(response: StreamAMGError) {
         Log.d("AMGCall", "FAILED! ${response.messages}")
-        successCallback?.invoke(null, response)
     }
 
     override fun updateIAPUI() {
         delegate?.purchasesAvailable(iapService.iapAvailable)
     }
 
+    /**
+     * To validate your purchase with StreamAMG Backend, the SDK typically handles this call
+        automatically after a successful purchase. However, if the SDK prompts you to do so with
+        the callback "#purchaseSuccessfulWithoutValidation", you will need to manually initiate this call.
+
+        In case you are not using the StreamAMG AuthenticationSDK for login, you can validate your
+        purchase with a custom SSO token using the method
+        "#validatePurchase(purchase: Purchase, isSub: Boolean, jwToken : String?)".
+
+     * @param purchase : Purchase object returned by the #purchaseSuccessfulWithoutValidation callback
+     * @param isSub : if purchase is a subscription or not
+     */
+
     override fun validatePurchase(purchase: Purchase, isSub: Boolean) {
         validatePurchase(purchase,isSub, authenticationSdk.lastLoginResponse?.authenticationToken)
     }
 
+    /**
+     * To validate your purchase with the StreamAMG Backend, the SDK typically handles this call
+        automatically after a successful purchase. However, if the SDK prompts you with the
+        callback "#purchaseSuccessfulWithoutValidation", you will need to initiate this call manually.
+
+        When making this call, make sure to pass your custom SSO token for authentication.
+
+     * @param purchase : Purchase object returned by the #purchaseSuccessfulWithoutValidation callback
+     * @param isSub : if purchase is a subscription or not
+     * @param jwToken : custom SSO JWT token
+     */
     override fun validatePurchase(purchase: Purchase, isSub: Boolean, jwToken : String?) {
         Log.d("AMGCall", "Calling validation")
         var purchaseFound = false
@@ -116,7 +139,9 @@ class AMGPurchases : PurchasesCall(), IAPInterface {
                 }
             }
             if (!authenticated) {
-                delegate?.purchaseFailed(iap, StreamAMGError(0, "User not authenticated"))
+                delegate?.purchaseSuccessfulWithoutValidation(purchase, StreamAMGError(-1,"The purchase has been completed " +
+                        "successfully through the AppStore. However, to validate the purchase with the AMG backend, " +
+                        "you need to call the #validatePurchase  API using a custom JWT Token."))
             }
         }
         if (!purchaseFound) {

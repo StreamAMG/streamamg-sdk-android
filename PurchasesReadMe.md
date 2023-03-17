@@ -174,6 +174,7 @@ Change Log:
 ===========
 
 All notable changes to this project will be documented in this section.
+### 1.1.9 - Updated validatePurchase API to return custom callback when token missing
 
 ### 1.1.8 - Added support to pass custom JWT Token to validate purchase
 
