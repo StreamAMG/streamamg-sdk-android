@@ -246,9 +246,12 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
                 tracks?.addAll(event.tracksInfo.textTracks.map { MediaTrack(it.uniqueId, TrackType.TEXT, it.language, it.label, it.mimeType) })
                 tracks?.addAll(event.tracksInfo.audioTracks.map { MediaTrack(it.uniqueId, TrackType.AUDIO, it.language, it.label, codecName = it.codecName, bitrate = it.bitrate, channelCount = it.channelCount) })
                 tracks?.addAll(event.tracksInfo.imageTracks.map { MediaTrack(it.uniqueId, TrackType.IMAGE, url = it.url, bitrate = it.bitrate, duration = it.duration, label = it.label, cols = it.cols, rows = it.rows, width = it.width.toInt(), height = it.height.toInt()) })
-                tracks?.let {
-                    listener?.tracksAvailable(it)
-                    controlsView.createSubtitleSelector(it.filter { it.type == TrackType.TEXT })
+                tracks?.let { tracks ->
+                    tracks.filter { it.type == TrackType.TEXT }.let { textTracks ->
+                        checkDefaultCaptionTrack(textTracks)
+                        controlsView.createSubtitlesSelector(textTracks)
+                    }
+                    listener?.tracksAvailable(tracks)
                 }
             }
 
@@ -267,12 +270,49 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 
     }
 
-    override fun setTrack(track: MediaTrack?) {
-        changeTrack(track?.uniqueId ?: "")
+    private fun checkDefaultCaptionTrack(textTracks: List<MediaTrack>) {
+        controlsView.selectedCaption = 0
+        currentMediaItem?.captionAsset?.objects?.let {
+            for (caption in it) { // Find the Label first
+                if (caption.isDefault == true) {
+                    textTracks.indexOfFirst { mediaTrack ->
+                        mediaTrack.label == caption.label
+                    }.let { defaultIndexCaptionTrack ->
+                        if (defaultIndexCaptionTrack >= 0) {
+                            player?.changeTrack(textTracks[defaultIndexCaptionTrack].uniqueId)
+                            controlsView.setCaptionOnSelector(defaultIndexCaptionTrack)
+                            return
+                        }
+                    }
+                }
+            }
+            for (caption in it) { // As fallback, find the Language if Label not set
+                if (caption.isDefault == true) {
+                    textTracks.indexOfFirst { mediaTrack ->
+                        mediaTrack.label == caption.language
+                    }.let { defaultIndexCaptionTrack ->
+                        if (defaultIndexCaptionTrack >= 0) {
+                            player?.changeTrack(textTracks[defaultIndexCaptionTrack].uniqueId)
+                            controlsView.setCaptionOnSelector(defaultIndexCaptionTrack)
+                            return
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    fun changeTrack(id: String?) {
+    override fun setTrack(track: MediaTrack) {
+        changeTrack(track.uniqueId)
+    }
+
+    fun changeTrack(id: String) {
         player?.changeTrack(id)
+        tracks?.filter { it.type == TrackType.TEXT }?.indexOfFirst { mediaTrack ->
+            mediaTrack.uniqueId == id
+        }?.let { trackIndex ->
+            controlsView.setCaptionOnSelector(trackIndex)
+        }
     }
 
     fun getTracks() : List<MediaTrack>? {
@@ -558,8 +598,6 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
             }
             listBitrate = bitrates
         }
-
-        player?.changeTrack(mediaConfig.captionAsset?.objects?.lastOrNull()?.id)
 
         controlsView.setMediaType(mediaType)
         if (mediaType == AMGMediaType.VOD){

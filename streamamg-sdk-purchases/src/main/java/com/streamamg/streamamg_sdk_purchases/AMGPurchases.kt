@@ -88,6 +88,7 @@ class AMGPurchases : PurchasesCall(), IAPInterface {
 
     override fun response(response: StreamAMGError) {
         Log.d("AMGCall", "FAILED! ${response.messages}")
+        successCallback?.invoke(null, response)
     }
 
     override fun updateIAPUI() {

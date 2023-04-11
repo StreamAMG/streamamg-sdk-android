@@ -624,7 +624,7 @@ playKit.player?.setVolume(0.5F)
 To instruct PlayKit to use a certain track when streaming (if available), you can use the following function:
 
 ``` Kotlin
-playKit.changeTrack(id: String?)
+playKit.changeTrack(id: String)
 ```
 
 PlayKit will atttempt to change the track to the chosen one for the rest of the stream. The id of the track should be the uniqueId of the available MediaTrack
@@ -638,12 +638,20 @@ override fun tracksAvailable(tracks: List<MediaTrack>) {
 
 Once the tracks are available and ready, is possible to filter and select the chosen track in this way:
 ``` Kotlin
-playKit.changeTrack(tracks.firstOrNull { it.language?.contains("english") == true && it.type == TrackType.TEXT }?.uniqueId)
+tracks.firstOrNull { it.language?.contains("english") == true && it.type == TrackType.TEXT }?.let { track ->
+    playKit.changeTrack(track.uniqueId)
+}
 ```
+
+Hovewer, PlayKit will take care to select the default caption track once the video will be loaded.
 
 # Change Log
 
 All notable changes to this project will be documented in this section.
+
+### 1.2.0
+- Default subtitle track auto-selected
+- Get Label caption on subtitle selector
 
 ### 1.1.8
 - Subtitles UI selector

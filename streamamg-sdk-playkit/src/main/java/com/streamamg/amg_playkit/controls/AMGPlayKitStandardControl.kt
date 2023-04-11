@@ -66,7 +66,7 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
     var fadeTime: Long = 5000
 
     var selectedBitrate = 0
-    var selectedSubtitle = 0
+    var selectedCaption: Int = 0
 
     var shouldHideOnOrientation = -1
     lateinit var mainView: ConstraintLayout
@@ -501,7 +501,7 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
         append(spannable)
     }
 
-    fun createSubtitleSelector(subtitles: List<MediaTrack>) {
+    fun createSubtitlesSelector(subtitles: List<MediaTrack>) {
         subtitleSelectorView.removeAllViews()
         subtitles.forEachIndexed { index, mediaTrack ->
             subtitleSelectorView.addView(listDivider())
@@ -509,32 +509,32 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
         }
     }
 
-    private fun subtitleButton(track: MediaTrack?, index: Int): Button {
+    private fun subtitleButton(track: MediaTrack, index: Int): Button {
         val btnSubtitle = standardButton()
         btnSubtitle.tag = index
         track?.label?.let {
             if (it == "none") {
                 btnSubtitle.setText(R.string.subtitle_off)
             } else {
-                btnSubtitle.text = Locale(it).displayLanguage.replaceFirstChar { char -> char.uppercase() }
+                btnSubtitle.text = it
             }
         }
 
-        toggleSubtitleButton(index, btnSubtitle, selectedSubtitle == index)
+        toggleSubtitleButton(index, btnSubtitle, selectedCaption == index)
 
         btnSubtitle.setOnClickListener {
             Log.d("SUBTITLE","Selected subtitle: ${track?.label}")
 
             // Previous subtitle back to normal status
-            val btnPrevSubtitle = subtitleSelectorView.findViewWithTag<Button>(selectedSubtitle)
-            toggleSubtitleButton(selectedSubtitle, btnPrevSubtitle, false)
+            val btnPrevSubtitle = subtitleSelectorView.findViewWithTag<Button>(selectedCaption)
+            toggleSubtitleButton(selectedCaption, btnPrevSubtitle, false)
             // Select new subtitle
             toggleSubtitleButton(index, btnSubtitle, true)
 
             player?.setTrack(track)
             subtitleSelectorView.visibility = View.GONE
             subtitleButton.setBackgroundResource(R.color.transparent)
-            selectedSubtitle = index
+            selectedCaption = index
         }
 
         return btnSubtitle
@@ -652,6 +652,15 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
         divider.setBackgroundResource(R.color.option_dark_gray)
 
         return divider
+    }
+
+    fun setCaptionOnSelector(index: Int) {
+        val btnPrevSubtitle = subtitleSelectorView.findViewWithTag<Button>(selectedCaption)
+        val btnNewSubtitle = subtitleSelectorView.findViewWithTag<Button>(index)
+        toggleSubtitleButton(selectedCaption, btnPrevSubtitle, false)
+        // Select new subtitle
+        toggleSubtitleButton(index, btnNewSubtitle, true)
+        selectedCaption = index
     }
 }
 
