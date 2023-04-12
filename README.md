@@ -68,3 +68,8 @@ alternatively, to install all SDK elements, use the following line:
 ```
 
 Sync your Gradle files, and the AMG SDK should import and be available for use.
+
+
+## Change Log
+
+All notable changes to this project will be documented [here](Changelod.md)

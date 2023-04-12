@@ -53,15 +53,17 @@ class MediaItem(
         var externalSubtitles = mutableListOf<PKExternalSubtitle>()
 
         for (value in list.objects) {
-            if (serverURL.isNotEmpty() && value.id != null && value.language != null && value.languageCode != null) {
+            if (serverURL.isNotEmpty() && value.id != null && value.language != null && value.languageCode != null && value.status != -1) {
                 val url = "$serverURL/api_v3/index.php/service/caption_captionasset/action/serveWebVTT/captionAssetId/${value.id}/segmentIndex/-1/version/2/captions.vtt"
                 val eSub = PKExternalSubtitle()
                 eSub.language = value.language
-                eSub.label = value.languageCode
+                eSub.label = if (!value.label.isNullOrEmpty()) value.label else value.language
                 eSub.url = url
                 externalSubtitles.add(eSub)
             }
         }
+
+        externalSubtitles = externalSubtitles.distinctBy { Pair(it.language, it.label) }.toMutableList()
 
         return externalSubtitles
     }

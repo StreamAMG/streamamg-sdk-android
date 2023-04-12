@@ -20,5 +20,5 @@ interface AMGPlayerInterface {
     fun swapOrientation()
     fun goLive()
     fun setMaximumBitrate(bitrate: FlavorAsset?)
-    fun setTrack(track: MediaTrack?)
+    fun setTrack(track: MediaTrack)
 }
