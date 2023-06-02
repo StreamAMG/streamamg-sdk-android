@@ -3,6 +3,7 @@ package com.streamamg.amg_playkit
 import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.hardware.SensorManager
 import android.os.Handler
 import android.os.Looper
@@ -11,6 +12,7 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.OrientationEventListener
+import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import com.google.gson.JsonObject
@@ -268,6 +270,12 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
             }
         }
 
+        controlsView.addOnLayoutChangeListener(object : OnLayoutChangeListener {
+            override fun onLayoutChange(v: View?, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
+                isFullScreen = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+                controlsView.hideFullScreenButton(if (isFullScreen) 0 else 1)
+            }
+        })
     }
 
     private fun checkDefaultCaptionTrack(textTracks: List<MediaTrack>) {
@@ -1007,16 +1015,12 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
                         orientationActivity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                         mSensorStateChanges = null
                         mSensorStateChanges = SensorStateChangeActions.WATCH_FOR_PORTAIT_CHANGES
-                        isFullScreen = false
-                        controlsView.hideFullScreenButton(1)
                     } else if (null != mSensorStateChanges && mSensorStateChanges == SensorStateChangeActions.WATCH_FOR_PORTAIT_CHANGES && (orientation >= 300 && orientation <= 359 || orientation >= 0 && orientation <= 45)) {
                         mSensorStateChanges = SensorStateChangeActions.SWITCH_FROM_POTRAIT_TO_STANDARD
                     } else if (null != mSensorStateChanges && mSensorStateChanges == SensorStateChangeActions.SWITCH_FROM_POTRAIT_TO_STANDARD && (orientation <= 300 && orientation >= 240 || orientation <= 130 && orientation >= 60)) {
                         orientationActivity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                         mSensorStateChanges = null
                         mSensorStateChanges = SensorStateChangeActions.WATCH_FOR_LANDSCAPE_CHANGES
-                        isFullScreen = true
-                        controlsView.hideFullScreenButton(0)
                     }
                 }
             }

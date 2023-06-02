@@ -256,11 +256,13 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
         settingsButton.setOnClickListener {
             toggleSubtitleSelector(true)
             toggleBitrateSelector(bitrateSelectorView.visibility == View.VISIBLE)
+            refreshViewChildrenLayout(this)
         }
 
         subtitleButton.setOnClickListener {
             toggleBitrateSelector(true)
             toggleSubtitleSelector(subtitleSelectorView.visibility == View.VISIBLE)
+            refreshViewChildrenLayout(this)
         }
     }
 
@@ -286,6 +288,14 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
             subtitleButton.setBackgroundResource(R.drawable.rounded_bg)
             player?.cancelTimer()
         }
+    }
+
+    private fun refreshViewChildrenLayout(view: View) {
+        view.measure(
+            MeasureSpec.makeMeasureSpec(view.measuredWidth, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(view.measuredHeight, MeasureSpec.EXACTLY)
+        )
+        view.layout(view.left, view.top, view.right, view.bottom)
     }
 
     internal fun hideFullScreenButton(orientation: Int) {
@@ -376,11 +386,13 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
         startTime.append(" / ${timeForDisplay(duration)}", R.color.white_opacity_70)
       //  endTime.text = timeForDisplay(timeRemaining)
 
-        val percentage = position.toFloat() / duration.toFloat()
-        val lpt = LayoutParams(0, MATCH_PARENT, percentage)
-        bottomScrubBarTrack.layoutParams = lpt
-        val lpb = LayoutParams(0, MATCH_PARENT, 1 - percentage)
-        bottomScrubBarBlank.layoutParams = lpb
+        if (bottomTrackShouldShow) {
+            val percentage = position.toFloat() / duration.toFloat()
+            val lpt = LayoutParams(0, MATCH_PARENT, percentage)
+            bottomScrubBarTrack.layoutParams = lpt
+            val lpb = LayoutParams(0, MATCH_PARENT, 1 - percentage)
+            bottomScrubBarBlank.layoutParams = lpb
+        }
 
         if (scrubBar.progress < scrubBar.max - 50) {
             liveButton.setText(R.string.go_live)
@@ -472,6 +484,7 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
             if (bottomTrackShouldShow) {
                 bottomScrubBar.visibility = VISIBLE
             }
+            refreshViewChildrenLayout(this)
         }
 
     }
@@ -503,6 +516,14 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
 
     fun createSubtitlesSelector(subtitles: List<MediaTrack>) {
         subtitleSelectorView.removeAllViews()
+
+        if (subtitles.isNullOrEmpty()) {
+            subtitleButton.visibility = View.GONE
+            return
+        } else {
+            subtitleButton.visibility = View.VISIBLE
+        }
+
         subtitles.forEachIndexed { index, mediaTrack ->
             subtitleSelectorView.addView(listDivider())
             subtitleSelectorView.addView(subtitleButton(mediaTrack, index))
@@ -535,6 +556,7 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
             subtitleSelectorView.visibility = View.GONE
             subtitleButton.setBackgroundResource(R.color.transparent)
             selectedCaption = index
+            refreshViewChildrenLayout(this)
         }
 
         return btnSubtitle
@@ -569,10 +591,18 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
 
     fun createBitrateSelector(bitrates: List<FlavorAsset>? = null) {
         bitrateSelectorView.removeAllViews()
+
+        if (bitrates.isNullOrEmpty()) {
+            settingsButton.visibility = View.GONE
+            return
+        } else {
+            settingsButton.visibility = View.VISIBLE
+        }
+
         bitrateSelectorView.addView(bitrateButton(bitrates?.lastOrNull(), 0, "Auto"))
         bitrates?.forEachIndexed { index, bitrate ->
             bitrateSelectorView.addView(listDivider())
-            bitrateSelectorView.addView(bitrateButton(bitrate, index+1, "${bitrate.bitrate}"))
+            bitrateSelectorView.addView(bitrateButton(bitrate, index+1, "${bitrate.height}p"))
         }
     }
 
@@ -639,6 +669,7 @@ class AMGPlayKitStandardControl : LinearLayout, AMGControlInterface {
             bitrateSelectorView.visibility = View.GONE
             settingsButton.setBackgroundResource(R.color.transparent)
             selectedBitrate = index
+            refreshViewChildrenLayout(this)
         }
 
         return btnBitrate
