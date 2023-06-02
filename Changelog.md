@@ -3,6 +3,8 @@ Change Log:
 
 All notable changes to this project will be documented in this section.
 
+### 1.2.2 - Improved bitrate and subtitle selector and fixed control resize issue
+
 ### 1.2.0 - Subtitle improvements: Default subtitle track auto-selected and get Label caption on subtitle selector
 
 ### 1.1.9 - Remove getKS call after successful login and updated validatePurchase to return error when valid token not available

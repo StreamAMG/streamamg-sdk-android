@@ -57,13 +57,24 @@ internal fun AMGPlayKit.updateBitrateSelector(callBack: (List<FlavorAsset>?) -> 
 class MediaContext (
     val flavorAssets: List<FlavorAsset>?,
 ) {
-
-//    fun fetchBitrates(): List<Long>? {
-//        return flavorAssets?.mapNotNull { it.bitrate }?.sorted()
-//    }
-
     fun fetchBitrates(): List<FlavorAsset>? {
-        return flavorAssets?.sortedBy { it.width }
+
+        var uniqueAssets: MutableMap<Long, FlavorAsset> = mutableMapOf() // MutableMap to store unique assets by height
+
+        flavorAssets?.forEach { flavorAsset ->
+            flavorAsset.height?.let { height ->
+                if (uniqueAssets.containsKey(height)) {
+                    val exisstingBitrate = uniqueAssets[height]
+                    if (exisstingBitrate?.bitrate ?: 0 < flavorAsset.bitrate ?: 0) {
+                        uniqueAssets[height] = flavorAsset // Replace with higher bitrate asset
+                    }
+                } else {
+                    uniqueAssets[height] = flavorAsset // Add new unique asset
+                }
+            }
+        }
+
+        return uniqueAssets.values.toList().sortedBy { it.bitrate } // Convert MutableMap values to a list and return it sorted
     }
 }
 
