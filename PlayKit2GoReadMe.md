@@ -173,12 +173,4 @@ Media can be 'removed' at any point in it's download lifecycle, and should be re
 Change Log:
 ===========
 
-All notable changes to this project will be documented in this section.
-
-### 1.0.1 - Release
-
-### Beta releases
-
-### 0.4 - PlayKit2Go Module added to SDK
-
-### 0.1 -> 0.3 - No Purchases Module
+All notable changes to this project will be documented [here](Changelog.md)
