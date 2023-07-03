@@ -60,9 +60,9 @@ data class FixturesModel(
  * Any external IDs that tie with this fixture
  */
 data class ExternalIDModel(
-    var optaFixtureId: Int?,
-    var paFixtureId: Int?,
-    var sportsradarFixtureId: Int?
+    var optaFixtureId: String?,
+    var paFixtureId: String?,
+    var sportsradarFixtureId: String?
 )
 
 /**

@@ -72,4 +72,4 @@ Sync your Gradle files, and the AMG SDK should import and be available for use.
 
 ## Change Log
 
-All notable changes to this project will be documented [here](Changelod.md)
+All notable changes to this project will be documented [here](Changelog.md)

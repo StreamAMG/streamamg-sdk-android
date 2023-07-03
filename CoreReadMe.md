@@ -166,16 +166,4 @@ The batch job can be fired as many times as required once created, but will not 
 Change Log:
 ===========
 
-All notable changes to this project will be documented in this section.
-
-### 1.0.1 - Release
-
-### Beta releases
-
-### 0.4 - No changes to Core
-
-### 0.3 - Updated batch job service to include completion listener and convenience method to clear jobs after processing
-
-### 0.2 -> 0.2.1 - No changes to Core
-
-### 0.1 - Initial build
+All notable changes to this project will be documented [here](Changelog.md)
