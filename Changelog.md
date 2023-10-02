@@ -3,6 +3,8 @@ Change Log:
 
 All notable changes to this project will be documented in this section.
 
+### 1.2.4 - Updated MediaType APIs from POST to GET
+
 ### 1.2.3 - Fixed StreamPlay FixtureID field types
 
 ### 1.2.2 - Improved bitrate and subtitle selector and fixed control resize issue

@@ -8,7 +8,7 @@ import retrofit2.Response
 
 fun AMGPlayKit.isLive(server: String, entryID: String, ks: String?, callBack: ((Boolean) -> Unit)) {
     val url = "$server/api_v3/?service=liveStream&action=islive&id=$entryID&protocol=applehttp&format=1"
-    val call = isLiveAPI.postIsLive(url)
+    val call = isLiveAPI.getIsLive(url)
     call.enqueue(object : Callback<String> {
         override fun onFailure(call: Call<String>, t: Throwable) {
             Log.e("AMGISLIVE", "Call to IsLive failed: ${t.localizedMessage}")
@@ -34,7 +34,7 @@ fun AMGPlayKit.isLive(server: String, entryID: String, ks: String?, callBack: ((
                 return
             }
             val validURL = "$server/api_v3/?service=baseentry&action=get&entryId=$entryID&protocol=applehttp&format=1&ks=$ks"
-            val callHarvested = isLiveAPI.postIsNotHarvested(validURL)
+            val callHarvested = isLiveAPI.getIsNotHarvested(validURL)
             callHarvested.enqueue(object : Callback<MPCategory> {
                 override fun onFailure(call: Call<MPCategory>, t: Throwable) {
                     callBack.invoke(true)
