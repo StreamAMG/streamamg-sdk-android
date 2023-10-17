@@ -19,7 +19,9 @@ interface AuthenticationSDK {
     @Deprecated("Use login with callback which returns the token")
     fun loginSyncToken(email: String, password: String): String
     fun getKS(entryID: String, callback: (GetKeySessionResult) -> Unit)
+    fun getKSWithToken(token: String, entryID: String, callback: (GetKeySessionResult) -> Unit)
     fun logout(callback: (LogoutResult) -> Unit)
+    fun logoutWithToken(token: String, callback: (LogoutResult) -> Unit)
     fun startSession(token: String, onSuccess: () -> Unit,onError: (Error) -> Unit)
     fun updateUserSummary(
         firstName: String,

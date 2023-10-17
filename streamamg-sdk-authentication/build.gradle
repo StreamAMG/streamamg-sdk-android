@@ -4,6 +4,7 @@ plugins {
 }
 
 android {
+    namespace = "com.streamamg.streamamg_sdk_authentication"
     compileSdkVersion 33
 
     defaultConfig {

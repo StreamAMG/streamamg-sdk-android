@@ -4,6 +4,7 @@ plugins {
 }
 
 android {
+    namespace = "com.streamamg.streamamg_sdk_playkit2go"
     compileSdkVersion 33
 
     defaultConfig {
