@@ -4,6 +4,7 @@ plugins {
 }
 
 android {
+    namespace = "com.streamamg.streamapi_streamplay"
     compileSdkVersion 33
 
     defaultConfig {

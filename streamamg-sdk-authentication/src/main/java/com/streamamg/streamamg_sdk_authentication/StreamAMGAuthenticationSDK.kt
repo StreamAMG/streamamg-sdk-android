@@ -20,7 +20,7 @@ import timber.log.Timber
 
 internal class StreamAMGAuthenticationSDK(
     private val coreSDK: StreamAMGSDK,
-    @VisibleForTesting var api: AuthenticationApi? = null
+    @get:VisibleForTesting var api: AuthenticationApi? = null
 ) : AuthenticationSDK {
 
     private var apiUrl: String? = null
@@ -80,10 +80,21 @@ internal class StreamAMGAuthenticationSDK(
     }
 
     override fun logout(callback: (LogoutResult) -> Unit) {
+        logoutWithToken(sessionId, callback)
+    }
 
+    /**
+    Logs out a user by sending a logout request with the provided token.
+    - Parameters:
+    - token: The authentication token for the user.
+    - callback: A closure to be called upon completion of the logout operation. It takes a `LogoutResult` type as an argument.
+    - Note: Make sure the `url` property is properly set before calling this method.
+    This function sends a logout request to the authentication API and handles the response accordingly.
+     */
+    override fun logoutWithToken(token: String, callback: (LogoutResult) -> Unit) {
         clearSavedCredentials()
 
-        api?.logout(paramsMap, sessionId)
+        api?.logout(paramsMap, token)
             ?.applySchedulers()
             ?.subscribeBy(
                 onSuccess = {
@@ -217,7 +228,7 @@ internal class StreamAMGAuthenticationSDK(
         return Single.create<String> {
             login(email, password) { result ->
                 if (result is LoginResult.LoginOK && loginResponse?.authenticationToken != null) {
-                    it.onSuccess(loginResponse!!.authenticationToken)
+                    it.onSuccess(loginResponse!!.authenticationToken!!)
                 } else {
                     loginResponse = LoginResponse()
                     loginResponse?.authenticationToken = null
@@ -281,12 +292,25 @@ internal class StreamAMGAuthenticationSDK(
     }
 
     override fun getKS(entryID: String, callback: (GetKeySessionResult) -> Unit) {
+        getKSWithToken(sessionId, entryID, callback)
+    }
+
+    /**
+    Retrieves a Key Session (KS) for a specific entry using the provided token.
+    - Parameters:
+    - token: The authentication token for the user.
+    - entryID: The ID of the entry for which the KS is requested.
+    - callback: A closure to be called upon completion of the KS retrieval operation. It takes a `GetKeySessionResult` type as an argument.
+    - Note: Ensure that the `url` property is properly set before calling this method.
+    This function sends a request to retrieve a Key Session (KS) for a specific entry and handles the response accordingly.
+     */
+    override fun getKSWithToken(token: String, entryID: String, callback: (GetKeySessionResult) -> Unit) {
         if (!isInitialized()) {
             callback.invoke(GetKeySessionResult.Error(Exception("PaymentSDK not initialized")))
             return
         }
 
-        api?.getKS(entryID, sessionId, paramsMap)
+        api?.getKS(entryID, token, paramsMap)
             ?.applySchedulers()
             ?.subscribeBy(
                 onSuccess = { response ->
@@ -299,7 +323,6 @@ internal class StreamAMGAuthenticationSDK(
                     callback.invoke(GetKeySessionResult.Error(it))
                 })
             ?.addTo(disposable)
-
     }
 
     private fun handleKSLoginResponse(loginResponse: LoginResponse, callback: (GetKeySessionResult) -> Unit) {

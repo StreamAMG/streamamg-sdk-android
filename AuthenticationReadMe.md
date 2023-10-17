@@ -4,6 +4,7 @@ StreamSDK Authentication SDK
 The StreamSDK Authentication SDK is a light wrapper around the authentication API and provides:
 
 * Logging in via email and password
+* Logging in using custom SSO
 * Getting a token
 * Getting a KSession
 * Storing credentials and logging in silently
@@ -49,14 +50,54 @@ authenticationSdk.initWithURL("https://my.client.url.payments/", "lang=" + Local
 
 `initWithURL` takes 2 parameters: the base url of the service, and a second optional parameter string which is appended to all requests
 
-## Usage
+Logging In
+========
+To authenticate with the selected StreamAMG Authentication API, simply pass an email and password to the login function, with a callback block
 
-Once initialised, call the functions of the SDK with callbacks:
 ```
 authenticationSdk.login(email, password) { result ->
     when (result) {
         is LoginResult.LoginOK -> onloginSuccess()
         else -> handleLoginError(result)
+    }
+}
+```
+
+Alternatively, it is also possible to automatically login a previously verified user as long as they have not since logged out:
+
+```
+authenticationSdk.loginSilent { result ->
+    when (result) {
+        is LoginResult.LoginOK -> onloginSuccess()
+        else -> handleLoginError(result)
+    }
+}
+```
+
+Logging Out
+=========
+To end a user's session and remove the user's credentials from the Keychain, you can log the user out:
+
+```
+authenticationSdk.logout { result ->
+    when (result) {
+        is LogoutResult.LogoutOK -> onlogoutSuccess()
+        else -> handleLogoutError(result)
+    }
+}
+```
+
+Requesting Key Session Token
+=======================
+If the Authentication API is providing Key Session Tokens, these can also be requested via the SDK:
+
+```
+authenticationSdk.getKS(entryID) { keySessionResult ->
+    if (keySessionResult is GetKeySessionResult.Granted) {
+        // Valid KS
+        KS = keySessionResult.keySession
+    } else {
+        // Manage other GetKeySessionResult type
     }
 }
 ```
@@ -67,7 +108,7 @@ Authentication SDK supports custom SSO implementation that are correctly configu
 
 ## Start the session with custom SSO
 
-In order to comunicate with CloudPay the app needs to start the session with the users token.
+In order to communicate with CloudPay the app needs to start the session with the users token generated. This is an optional step and required only if you are not using cloud pay login but you want to start a user session to log the sessions and so get CloudPay check the concurrency.
 
 ```
 authenticationSdk.startSession("jwtToken",
@@ -110,6 +151,7 @@ authenticationSdk.updateUserSummary(firstname,lastname, token
     }
 )
 ```
+
 ## Retrieve user summary
 The retrieve user summary function allows a user to retrieve their user details if the user has a valid token.
 
@@ -125,6 +167,35 @@ authenticationSdk.getUserSummary(token
     }
 )
 ```
+
+## Logout with custom SSO
+
+If you are using custom SSO, to logout from cloudpay, use this method to logout by passing the token you previously used to start the SSO.
+
+```
+authenticationSdk.logoutWithToken(token) { result ->
+    when (result) {
+        is LogoutResult.LogoutOK -> onlogoutSuccess()
+        else -> handleLogoutError(result)
+    }
+}
+```
+
+## GetKS with custom SSO
+
+If you are using custom SSO, then to get the user entitlements use this method. Please pass the same token you used to start the custom SSO  session.
+
+```
+authenticationSdk.getKSWithToken(token, entryID) { keySessionResult ->
+    if (keySessionResult is GetKeySessionResult.Granted) {
+        // Valid KS
+        KS = keySessionResult.keySession
+    } else {
+        // Manage other GetKeySessionResult type
+    }
+}
+```
+
 Change Log:
 ===========
 

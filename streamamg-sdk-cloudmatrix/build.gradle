@@ -4,6 +4,7 @@ plugins {
 }
 
 android {
+    namespace = "com.streamamg.streamamg_sdk_cloudmatrix"
     compileSdkVersion 33
 
     defaultConfig {
