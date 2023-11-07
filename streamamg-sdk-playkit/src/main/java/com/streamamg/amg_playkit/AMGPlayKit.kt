@@ -629,9 +629,9 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
         if (partnerId > 0) {
             fetchTracksData(serverUrl, entryID, partnerId, ks) {
                 if (startPosition >= 0) {
-                    loadMedia(MediaItem(serverUrl, partnerId, entryID, ks, title, mediaType), mediaType, startPosition)
+                    loadMedia(MediaItem(serverUrl, partnerId, entryID, ks, title, mediaType, it), mediaType, startPosition)
                 } else {
-                    loadMedia(MediaItem(serverUrl, partnerId, entryID, ks, title, mediaType), mediaType)
+                    loadMedia(MediaItem(serverUrl, partnerId, entryID, ks, title, mediaType, it), mediaType)
                 }
             }
         } else {
