@@ -627,10 +627,12 @@ class AMGPlayKit : LinearLayout, AMGPlayerInterface {
 
     fun loadMedia(serverUrl: String, entryID: String, ks: String? = null, title: String? = null, mediaType: AMGMediaType = AMGMediaType.VOD, startPosition: Long = -1) {
         if (partnerId > 0) {
-            if (startPosition >= 0) {
-                loadMedia(MediaItem(serverUrl, partnerId, entryID, ks, title, mediaType), mediaType, startPosition)
-            } else {
-                loadMedia(MediaItem(serverUrl, partnerId, entryID, ks, title, mediaType), mediaType)
+            fetchTracksData(serverUrl, entryID, partnerId, ks) {
+                if (startPosition >= 0) {
+                    loadMedia(MediaItem(serverUrl, partnerId, entryID, ks, title, mediaType), mediaType, startPosition)
+                } else {
+                    loadMedia(MediaItem(serverUrl, partnerId, entryID, ks, title, mediaType), mediaType)
+                }
             }
         } else {
             print("Please provide a PartnerID with the request, add a default with 'addPartnerID(partnerID:Int)' or set a default in the initialiser")
