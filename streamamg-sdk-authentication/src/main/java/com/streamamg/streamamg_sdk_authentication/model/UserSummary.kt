@@ -107,6 +107,8 @@ sealed class UserSummary {
         @SerializedName("BillingDetails")
         val billingDetails: BillingDetails?,
         @SerializedName("Subscriptions")
-        val subscriptions: List<Subscriptions>?
+        val subscriptions: List<Subscriptions>?,
+        @SerializedName("Entitlements")
+        val entitlements: List<String>?
     ) : UserSummary()
 }
