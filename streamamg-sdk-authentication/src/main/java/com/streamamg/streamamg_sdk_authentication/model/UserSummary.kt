@@ -39,7 +39,7 @@ sealed class UserSummary {
         @SerializedName("Type")
         val type: String,
         @SerializedName("Amount")
-        val amount: Int,
+        val amount: Double,
         @SerializedName("CurrencyCode")
         val currencyCode: String?,
         @SerializedName("Interval")
@@ -107,6 +107,8 @@ sealed class UserSummary {
         @SerializedName("BillingDetails")
         val billingDetails: BillingDetails?,
         @SerializedName("Subscriptions")
-        val subscriptions: List<Subscriptions>?
+        val subscriptions: List<Subscriptions>?,
+        @SerializedName("Entitlements")
+        val entitlements: List<String>?
     ) : UserSummary()
 }

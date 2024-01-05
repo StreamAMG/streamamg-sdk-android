@@ -3,6 +3,8 @@ Change Log:
 
 All notable changes to this project will be documented in this section.
 
+### 1.2.6 - Fixed Authentication fields
+
 ### 1.2.5 - Updated Authentication module with new methods to logout and getKS with third party JWT tokens.
 
 ### 1.2.4 - Updated MediaType APIs from POST to GET
