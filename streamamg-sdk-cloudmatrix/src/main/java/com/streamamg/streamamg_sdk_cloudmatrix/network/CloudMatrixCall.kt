@@ -14,13 +14,17 @@ open class CloudMatrixCall {
         call.enqueue(object : Callback<CloudMatrixResponse> {
             override fun onFailure(call: Call<CloudMatrixResponse>, t: Throwable) {
                 logErrorCM("Call to CloudMatrix failed: ${t.localizedMessage}")
+
+                response(StreamAMGError(message = t.message.orEmpty(), throwable = t))
             }
 
             override fun onResponse(call: Call<CloudMatrixResponse>, response: Response<CloudMatrixResponse>) {
                 if (response.isSuccessful) {
                     val model = response.body()
-                    model?.let {
+                    if(model != null) {
                         response(model)
+                    } else {
+                        response(StreamAMGError(response.code(), response.message().orEmpty()))
                     }
                 } else {
                     response(StreamAMGError(response.code(), response.message()))
