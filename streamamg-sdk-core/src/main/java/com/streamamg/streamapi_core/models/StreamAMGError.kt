@@ -3,7 +3,7 @@ package com.streamamg.streamapi_core.models
 /**
  * Model returned when a SDK call is unavailable or reports an error
  */
-class StreamAMGError(val code: Int = -1, message: String, throwable: Throwable? = null)
+class StreamAMGError(val code: Int = -1, message: String, val throwable: Throwable? = null)
 {
         /**
          * Returns an error code - generally HTTP - for a failed call
